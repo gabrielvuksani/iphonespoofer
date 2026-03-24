@@ -6,6 +6,8 @@ let routePolling = null;
 let searchTimeout = null;
 let selectedSpeed = 15;
 let darkTiles = true;
+let teleportMode = false;
+let recentLocations = JSON.parse(localStorage.getItem("recent") || "[]");
 
 const TILES = {
     dark: {
@@ -18,11 +20,34 @@ const TILES = {
     },
 };
 
+const POPULAR = [
+    { name: "Times Square, NYC", lat: 40.7580, lon: -73.9855 },
+    { name: "Eiffel Tower, Paris", lat: 48.8584, lon: 2.2945 },
+    { name: "Tokyo Tower, Japan", lat: 35.6586, lon: 139.7454 },
+    { name: "Big Ben, London", lat: 51.5007, lon: -0.1246 },
+    { name: "Sydney Opera House", lat: -33.8568, lon: 151.2153 },
+    { name: "Statue of Liberty, NYC", lat: 40.6892, lon: -74.0445 },
+    { name: "Colosseum, Rome", lat: 41.8902, lon: 12.4922 },
+    { name: "Dubai Mall, UAE", lat: 25.1972, lon: 55.2744 },
+];
+
 let tileLayer;
 
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
-    // Load default location FIRST so the map opens on the user's real location
+    // Show onboarding if first visit
+    if (!localStorage.getItem("ob_done")) {
+        $("onboarding").classList.remove("hidden");
+    } else {
+        $("onboarding").classList.add("hidden");
+    }
+
+    $("ob-start").addEventListener("click", () => {
+        if ($("ob-dismiss").checked) localStorage.setItem("ob_done", "1");
+        $("onboarding").classList.add("hidden");
+    });
+
+    // Load default location FIRST
     let startLat = 40.7128, startLon = -74.006;
     try {
         const r = await fetch("/api/default-location");
@@ -39,21 +64,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     map.on("click", onMapClick);
 
-    // Bind events
+    // Bind core events
     $("btn-set").addEventListener("click", setLocation);
     $("btn-clear").addEventListener("click", clearLocation);
     $("btn-save").addEventListener("click", saveLocation);
+    $("btn-paste").addEventListener("click", pasteCoords);
     $("btn-route-start").addEventListener("click", startRoute);
     $("btn-route-stop").addEventListener("click", stopRoute);
     $("btn-route-clear").addEventListener("click", clearRoutePoints);
     $("sidebar-toggle").addEventListener("click", toggleSidebar);
     $("btn-layer").addEventListener("click", toggleTiles);
+    $("btn-zoom-in").addEventListener("click", () => map.zoomIn());
+    $("btn-zoom-out").addEventListener("click", () => map.zoomOut());
+    $("btn-teleport").addEventListener("click", toggleTeleport);
+    $("btn-clear-recent").addEventListener("click", clearRecent);
     $("search-input").addEventListener("input", onSearchInput);
     $("search-input").addEventListener("focus", () => {
         if ($("search-results").children.length > 0)
             $("search-results").classList.add("visible");
     });
 
+    // Speed buttons
     document.querySelectorAll(".seg-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".seg-btn").forEach((b) => b.classList.remove("active"));
@@ -62,7 +93,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             $("speed-input").value = selectedSpeed;
         });
     });
-
     $("speed-input").addEventListener("change", (e) => {
         selectedSpeed = parseInt(e.target.value) || 15;
         document.querySelectorAll(".seg-btn").forEach((b) =>
@@ -79,10 +109,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Load data
     pollDevice();
     loadSaved();
+    renderRecent();
+    renderPopular();
     setInterval(pollDevice, 5000);
 });
 
 function $(id) { return document.getElementById(id); }
+
+// ── Onboarding handled inline above ─────────────────────────
 
 // ── Toasts ───────────────────────────────────────────────────
 function toast(msg, type = "success") {
@@ -90,16 +124,23 @@ function toast(msg, type = "success") {
     el.className = `toast ${type}`;
     el.textContent = msg;
     $("toasts").appendChild(el);
-    setTimeout(() => {
-        el.classList.add("out");
-        setTimeout(() => el.remove(), 300);
-    }, 3000);
+    setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ── Teleport mode ────────────────────────────────────────────
+function toggleTeleport() {
+    teleportMode = !teleportMode;
+    $("btn-teleport").classList.toggle("active", teleportMode);
+    toast(teleportMode ? "Teleport ON — click map to move instantly" : "Teleport OFF", teleportMode ? "success" : "error");
 }
 
 // ── Map ──────────────────────────────────────────────────────
 function onMapClick(e) {
     if (e.originalEvent.shiftKey || routePoints.length > 0) {
         addRoutePoint(e.latlng.lat, e.latlng.lng);
+    } else if (teleportMode) {
+        placeMarker(e.latlng.lat, e.latlng.lng);
+        teleportTo(e.latlng.lat, e.latlng.lng);
     } else {
         placeMarker(e.latlng.lat, e.latlng.lng);
     }
@@ -113,10 +154,9 @@ function placeMarker(lat, lng) {
             radius: 8, color: "#58a6ff", fillColor: "#58a6ff",
             fillOpacity: 1, weight: 2, opacity: 0.6,
         }).addTo(map);
-        // Pulsing ring
         const pulse = L.circleMarker([lat, lng], {
             radius: 16, color: "#58a6ff", fillOpacity: 0,
-            weight: 1.5, opacity: 0.3, className: "pulse-ring",
+            weight: 1.5, opacity: 0.3,
         }).addTo(map);
         marker._pulse = pulse;
     }
@@ -137,6 +177,24 @@ function toggleSidebar() {
     setTimeout(() => map.invalidateSize(), 350);
 }
 
+// ── Teleport (instant set) ───────────────────────────────────
+async function teleportTo(lat, lon) {
+    try {
+        const r = await fetch("/api/location/set", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lat, lon }),
+        });
+        if (r.ok) {
+            toast(`Teleported to ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+            addToRecent(lat, lon);
+        } else {
+            const d = await r.json();
+            toast(d.error || "Failed", "error");
+        }
+    } catch (e) { toast("Connection error", "error"); }
+}
+
 // ── Location ─────────────────────────────────────────────────
 async function setLocation() {
     const lat = parseFloat($("lat-input").value);
@@ -153,6 +211,7 @@ async function setLocation() {
         if (r.ok) {
             toast(`Location set: ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
             placeMarker(lat, lon);
+            addToRecent(lat, lon);
         } else toast(d.error || "Failed", "error");
     } catch (e) { toast("Connection error", "error"); }
 }
@@ -167,6 +226,31 @@ async function clearLocation() {
             $("lon-input").value = "";
         }
     } catch (e) { toast("Connection error", "error"); }
+}
+
+// ── Paste coordinates ────────────────────────────────────────
+async function pasteCoords() {
+    try {
+        const text = await navigator.clipboard.readText();
+        // Try common formats: "lat, lon" or "lat lon" or Google Maps URL
+        let lat, lon;
+        const urlMatch = text.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+        const coordMatch = text.match(/(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)/);
+        if (urlMatch) {
+            lat = parseFloat(urlMatch[1]); lon = parseFloat(urlMatch[2]);
+        } else if (coordMatch) {
+            lat = parseFloat(coordMatch[1]); lon = parseFloat(coordMatch[2]);
+        }
+        if (lat && lon && !isNaN(lat) && !isNaN(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
+            $("lat-input").value = lat.toFixed(6);
+            $("lon-input").value = lon.toFixed(6);
+            map.flyTo([lat, lon], 15, { duration: 1 });
+            placeMarker(lat, lon);
+            toast(`Pasted: ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+        } else {
+            toast("No valid coordinates in clipboard", "error");
+        }
+    } catch (e) { toast("Clipboard access denied", "error"); }
 }
 
 // ── Search ───────────────────────────────────────────────────
@@ -202,12 +286,14 @@ async function doSearch(q) {
                 placeMarker(lat, lon);
                 c.classList.remove("visible");
                 $("search-input").value = item.querySelector(".search-item-text").textContent.trim();
+                if (teleportMode) teleportTo(lat, lon);
             });
         });
     } catch (e) { /* silent */ }
 }
 
 // ── Device polling ───────────────────────────────────────────
+let wasConnected = false;
 async function pollDevice() {
     try {
         const r = await fetch("/api/device");
@@ -220,11 +306,83 @@ async function pollDevice() {
             $("dev-ios").textContent = d.ios_version || "--";
             $("dev-model").textContent = d.model || "--";
             $("dev-udid").textContent = d.udid || "--";
+            $("device-body").classList.remove("hidden");
+            $("setup-guide").classList.add("hidden");
+            if (!wasConnected) { wasConnected = true; toast("iPhone connected"); }
         } else {
             dot.classList.remove("connected");
-            $("device-label").textContent = "Disconnected";
+            $("device-label").textContent = "No device";
+            $("device-body").classList.add("hidden");
+            $("setup-guide").classList.remove("hidden");
+            wasConnected = false;
         }
     } catch (e) { /* server down */ }
+}
+
+// ── Recent locations ─────────────────────────────────────────
+function addToRecent(lat, lon) {
+    const entry = { lat: +lat.toFixed(6), lon: +lon.toFixed(6), ts: Date.now() };
+    // Remove if already exists nearby
+    recentLocations = recentLocations.filter(r =>
+        Math.abs(r.lat - entry.lat) > 0.0005 || Math.abs(r.lon - entry.lon) > 0.0005
+    );
+    recentLocations.unshift(entry);
+    recentLocations = recentLocations.slice(0, 15);
+    localStorage.setItem("recent", JSON.stringify(recentLocations));
+    renderRecent();
+}
+
+function clearRecent() {
+    recentLocations = [];
+    localStorage.setItem("recent", "[]");
+    renderRecent();
+    toast("History cleared");
+}
+
+function renderRecent() {
+    const c = $("recent-list");
+    if (!recentLocations.length) { c.innerHTML = '<div class="empty-state">No recent locations</div>'; return; }
+    c.innerHTML = recentLocations.map((r) => {
+        const ago = timeAgo(r.ts);
+        return `<div class="saved-item" data-lat="${r.lat}" data-lon="${r.lon}">
+            <span class="saved-name">${r.lat.toFixed(4)}, ${r.lon.toFixed(4)}</span>
+            <span class="saved-coords">${ago}</span>
+        </div>`;
+    }).join("");
+    c.querySelectorAll(".saved-item").forEach((item) => {
+        item.addEventListener("click", () => {
+            const lat = parseFloat(item.dataset.lat), lon = parseFloat(item.dataset.lon);
+            map.flyTo([lat, lon], 15, { duration: 1 });
+            placeMarker(lat, lon);
+            if (teleportMode) teleportTo(lat, lon);
+        });
+    });
+}
+
+function timeAgo(ts) {
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return "just now";
+    if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+    if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+    return `${Math.floor(s / 86400)}d ago`;
+}
+
+// ── Popular spots ────────────────────────────────────────────
+function renderPopular() {
+    const c = $("popular-list");
+    c.innerHTML = POPULAR.map((p) => `
+        <div class="saved-item" data-lat="${p.lat}" data-lon="${p.lon}">
+            <span class="saved-name">${p.name}</span>
+        </div>
+    `).join("");
+    c.querySelectorAll(".saved-item").forEach((item) => {
+        item.addEventListener("click", () => {
+            const lat = parseFloat(item.dataset.lat), lon = parseFloat(item.dataset.lon);
+            map.flyTo([lat, lon], 15, { duration: 1.2 });
+            placeMarker(lat, lon);
+            if (teleportMode) teleportTo(lat, lon);
+        });
+    });
 }
 
 // ── Saved locations ──────────────────────────────────────────
@@ -249,6 +407,7 @@ async function loadSaved() {
                 const lat = parseFloat(item.dataset.lat), lon = parseFloat(item.dataset.lon);
                 map.flyTo([lat, lon], 15, { duration: 1 });
                 placeMarker(lat, lon);
+                if (teleportMode) teleportTo(lat, lon);
             });
         });
 
@@ -310,7 +469,7 @@ function clearRoutePoints() {
 function updateRouteUI() {
     $("btn-route-start").disabled = routePoints.length < 2;
     $("route-hint").textContent = routePoints.length > 0
-        ? `${routePoints.length} point${routePoints.length > 1 ? "s" : ""} -- shift+click to add more`
+        ? `${routePoints.length} point${routePoints.length > 1 ? "s" : ""} — shift+click to add more`
         : "Shift+click map to add route points";
 }
 
@@ -355,7 +514,6 @@ async function pollRoute() {
         $("progress-bar").style.width = d.progress_pct + "%";
         $("route-pct").textContent = Math.round(d.progress_pct) + "%";
 
-        // Update marker to current position
         const lr = await fetch("/api/location/current");
         if (lr.ok) {
             const loc = await lr.json();

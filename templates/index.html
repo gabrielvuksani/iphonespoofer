@@ -8,124 +8,198 @@
     <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
-    <!-- Toast container -->
-    <div id="toasts"></div>
 
-    <!-- Top bar -->
-    <div id="topbar">
-        <div class="topbar-left">
-            <button id="sidebar-toggle" class="icon-btn" title="Menu">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
-            <div class="search-container">
-                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="search-input" placeholder="Search any location..." autocomplete="off" />
-                <div id="search-results"></div>
+<!-- ═══ Onboarding overlay ═══ -->
+<div id="onboarding">
+    <div class="ob-card">
+        <div class="ob-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h1 class="ob-title">iPhone Location Spoofer</h1>
+        <p class="ob-sub">Change your iPhone's GPS location in one click.<br>Works with all apps — Find My, Life360, Pokemon Go, and more.</p>
+
+        <div class="ob-steps">
+            <div class="ob-step">
+                <div class="ob-step-num">1</div>
+                <div><strong>Connect your iPhone</strong><br><span class="ob-muted">Plug in via USB and tap "Trust This Computer"</span></div>
+            </div>
+            <div class="ob-step">
+                <div class="ob-step-num">2</div>
+                <div><strong>Enable Developer Mode</strong><br><span class="ob-muted">Settings &rarr; Privacy & Security &rarr; Developer Mode</span></div>
+            </div>
+            <div class="ob-step">
+                <div class="ob-step-num">3</div>
+                <div><strong>Click anywhere on the map</strong><br><span class="ob-muted">Your iPhone's GPS will instantly move there</span></div>
             </div>
         </div>
-        <div class="topbar-right">
-            <div id="device-badge">
-                <span id="device-dot" class="dot"></span>
-                <span id="device-label">Connecting...</span>
-            </div>
-        </div>
+
+        <button id="ob-start" class="btn btn-blue ob-btn">Get Started</button>
+        <label class="ob-check"><input type="checkbox" id="ob-dismiss" checked /> Don't show this again</label>
     </div>
+</div>
 
-    <!-- Sidebar -->
-    <div id="sidebar">
-        <!-- Device card -->
-        <div class="card" id="device-card">
-            <div class="card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round"/></svg>
-                <span id="dev-name">iPhone</span>
-            </div>
-            <div class="card-body">
-                <div class="meta-row"><span class="meta-label">iOS</span><span id="dev-ios">--</span></div>
-                <div class="meta-row"><span class="meta-label">Model</span><span id="dev-model">--</span></div>
-                <div class="meta-row"><span class="meta-label">UDID</span><span id="dev-udid" class="mono truncate">--</span></div>
-            </div>
-        </div>
+<!-- ═══ Toast container ═══ -->
+<div id="toasts"></div>
 
-        <!-- Location card -->
-        <div class="card">
-            <div class="card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span>Location</span>
-            </div>
-            <div class="card-body">
-                <div class="coord-row">
-                    <label>Lat</label>
-                    <input type="number" id="lat-input" step="any" placeholder="0.000000" />
-                </div>
-                <div class="coord-row">
-                    <label>Lon</label>
-                    <input type="number" id="lon-input" step="any" placeholder="0.000000" />
-                </div>
-                <div class="btn-group">
-                    <button id="btn-set" class="btn btn-blue">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                        Set Location
-                    </button>
-                    <button id="btn-clear" class="btn btn-ghost">Reset</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Saved card -->
-        <div class="card">
-            <div class="card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <span>Saved</span>
-                <button id="btn-save" class="btn-inline" title="Save current">+ Save</button>
-            </div>
-            <div class="card-body">
-                <div id="saved-list" class="saved-list">
-                    <div class="empty-state">No saved locations</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Movement card -->
-        <div class="card">
-            <div class="card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                <span>Movement</span>
-            </div>
-            <div class="card-body">
-                <p class="hint" id="route-hint">Shift+click map to add route points</p>
-                <div class="speed-segment">
-                    <button class="seg-btn" data-speed="5">Walk</button>
-                    <button class="seg-btn active" data-speed="15">Bike</button>
-                    <button class="seg-btn" data-speed="40">Drive</button>
-                    <div class="seg-custom">
-                        <input type="number" id="speed-input" value="15" min="1" max="300" />
-                        <span>km/h</span>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button id="btn-route-start" class="btn btn-blue" disabled>Start Route</button>
-                    <button id="btn-route-stop" class="btn btn-red" disabled>Stop</button>
-                    <button id="btn-route-clear" class="btn btn-ghost">Clear</button>
-                </div>
-                <div id="route-progress" class="route-progress hidden">
-                    <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
-                    <span id="route-pct">0%</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Map -->
-    <div id="map"></div>
-
-    <!-- Map controls -->
-    <div id="map-controls">
-        <button id="btn-layer" class="map-btn" title="Toggle map style">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+<!-- ═══ Top bar ═══ -->
+<div id="topbar">
+    <div class="topbar-left">
+        <button id="sidebar-toggle" class="icon-btn" title="Menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
+        <div class="search-container">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" placeholder="Search any location..." autocomplete="off" />
+            <div id="search-results"></div>
+        </div>
+    </div>
+    <div class="topbar-right">
+        <!-- Teleport mode toggle -->
+        <button id="btn-teleport" class="teleport-btn" title="Instant teleport: click map to set location immediately">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span>Teleport</span>
+        </button>
+        <div id="device-badge">
+            <span id="device-dot" class="dot"></span>
+            <span id="device-label">Connecting...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Sidebar ═══ -->
+<div id="sidebar">
+    <!-- Device card -->
+    <div class="card" id="device-card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round"/></svg>
+            <span id="dev-name">iPhone</span>
+        </div>
+        <div class="card-body" id="device-body">
+            <div class="meta-row"><span class="meta-label">iOS</span><span id="dev-ios">--</span></div>
+            <div class="meta-row"><span class="meta-label">Model</span><span id="dev-model">--</span></div>
+            <div class="meta-row"><span class="meta-label">UDID</span><span id="dev-udid" class="mono truncate">--</span></div>
+        </div>
+        <!-- Setup guide shown when disconnected -->
+        <div class="card-body hidden" id="setup-guide">
+            <div class="setup-step"><span class="setup-dot"></span> Connect iPhone via USB cable</div>
+            <div class="setup-step"><span class="setup-dot"></span> Tap "Trust This Computer" on iPhone</div>
+            <div class="setup-step"><span class="setup-dot"></span> Enable Developer Mode in Settings</div>
+            <p class="hint" style="margin-top:8px">Restart the app after connecting.</p>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="/static/js/app.js"></script>
+    <!-- Location card -->
+    <div class="card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Location</span>
+            <button id="btn-paste" class="btn-inline" title="Paste coordinates from clipboard">Paste</button>
+        </div>
+        <div class="card-body">
+            <div class="coord-row">
+                <label>Lat</label>
+                <input type="number" id="lat-input" step="any" placeholder="0.000000" />
+            </div>
+            <div class="coord-row">
+                <label>Lon</label>
+                <input type="number" id="lon-input" step="any" placeholder="0.000000" />
+            </div>
+            <div class="btn-group">
+                <button id="btn-set" class="btn btn-blue">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Set Location
+                </button>
+                <button id="btn-clear" class="btn btn-ghost">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent locations card -->
+    <div class="card" id="recent-card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Recent</span>
+            <button id="btn-clear-recent" class="btn-inline" title="Clear history">Clear</button>
+        </div>
+        <div class="card-body">
+            <div id="recent-list" class="saved-list">
+                <div class="empty-state">No recent locations</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saved card -->
+    <div class="card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Saved</span>
+            <button id="btn-save" class="btn-inline" title="Save current">+ Save</button>
+        </div>
+        <div class="card-body">
+            <div id="saved-list" class="saved-list">
+                <div class="empty-state">No saved locations</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular spots -->
+    <div class="card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            <span>Popular</span>
+        </div>
+        <div class="card-body">
+            <div id="popular-list" class="saved-list"></div>
+        </div>
+    </div>
+
+    <!-- Movement card -->
+    <div class="card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Movement</span>
+        </div>
+        <div class="card-body">
+            <p class="hint" id="route-hint">Shift+click map to add route points</p>
+            <div class="speed-segment">
+                <button class="seg-btn" data-speed="5">Walk</button>
+                <button class="seg-btn active" data-speed="15">Bike</button>
+                <button class="seg-btn" data-speed="40">Drive</button>
+                <div class="seg-custom">
+                    <input type="number" id="speed-input" value="15" min="1" max="300" />
+                    <span>km/h</span>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button id="btn-route-start" class="btn btn-blue" disabled>Start Route</button>
+                <button id="btn-route-stop" class="btn btn-red" disabled>Stop</button>
+                <button id="btn-route-clear" class="btn btn-ghost">Clear</button>
+            </div>
+            <div id="route-progress" class="route-progress hidden">
+                <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+                <span id="route-pct">0%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Map ═══ -->
+<div id="map"></div>
+
+<!-- ═══ Map controls ═══ -->
+<div id="map-controls">
+    <button id="btn-zoom-in" class="map-btn" title="Zoom in">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <button id="btn-zoom-out" class="map-btn" title="Zoom out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <button id="btn-layer" class="map-btn" title="Toggle map style">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    </button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/app.js"></script>
 </body>
 </html>

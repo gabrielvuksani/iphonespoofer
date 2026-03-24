@@ -631,6 +631,136 @@ body {
 
 .route-label::before { display: none !important; }
 
+/* ── Onboarding ──────────────────────────────────── */
+
+#onboarding {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+#onboarding.hidden { display: none; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.ob-card {
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+}
+
+.ob-icon { margin-bottom: 16px; }
+.ob-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
+.ob-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 28px; }
+
+.ob-steps {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.ob-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.ob-step strong { color: var(--text); }
+.ob-muted { color: var(--text-tertiary); font-size: 12px; }
+
+.ob-step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--blue-bg);
+    color: var(--blue);
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.ob-btn { width: 100%; padding: 12px; font-size: 14px; border-radius: 10px; }
+
+.ob-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.ob-check input { accent-color: var(--blue); }
+
+/* ── Teleport toggle ────────────────────────────── */
+
+.teleport-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 8px;
+}
+
+.teleport-btn:hover { background: rgba(255,255,255,0.08); }
+
+.teleport-btn.active {
+    background: var(--blue-bg);
+    border-color: rgba(88, 166, 255, 0.3);
+    color: var(--blue);
+}
+
+/* ── Setup guide ─────────────────────────────────── */
+
+.setup-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.setup-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.setup-step.done .setup-dot { background: var(--green); }
+.setup-step.done { color: var(--text); }
+
 /* ── Scrollbar ───────────────────────────────────── */
 
 ::-webkit-scrollbar { width: 4px; }
