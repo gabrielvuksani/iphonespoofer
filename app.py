@@ -110,6 +110,72 @@ def api_current_location():
 
 # ── Search API ────────────────────────────────────────────────
 
+def _dedup_results(results):
+    """Remove duplicate locations. Two results are duplicates if they have
+    the same display name (case-insensitive) or are within ~200m of each other."""
+    seen_names = set()
+    seen_coords = []
+    out = []
+    for r in results:
+        name_key = r["display_name"].lower().strip()
+        if name_key in seen_names:
+            continue
+        # Check coordinate proximity (0.002 deg ≈ 200m)
+        lat, lon = r["lat"], r["lon"]
+        too_close = False
+        for slat, slon in seen_coords:
+            if abs(lat - slat) < 0.002 and abs(lon - slon) < 0.002:
+                too_close = True
+                break
+        if too_close:
+            continue
+        seen_names.add(name_key)
+        seen_coords.append((lat, lon))
+        out.append(r)
+    return out
+
+
+def _parse_photon(data):
+    """Parse Photon GeoJSON response into our result format."""
+    results = []
+    for f in data.get("features", []):
+        props = f.get("properties", {})
+        coords = f.get("geometry", {}).get("coordinates", [])
+        if len(coords) < 2:
+            continue
+        name = props.get("name", "")
+        if not name:
+            continue
+        parts = [name]
+        for key in ("street", "city", "state", "country"):
+            val = props.get(key)
+            if val and val != name:
+                parts.append(val)
+        results.append({
+            "display_name": ", ".join(parts),
+            "lat": coords[1],
+            "lon": coords[0],
+            "type": props.get("osm_value", props.get("type", "")),
+        })
+    return results
+
+
+def _parse_nominatim(data):
+    """Parse Nominatim JSON response into our result format."""
+    results = []
+    for r in data:
+        try:
+            results.append({
+                "display_name": r["display_name"],
+                "lat": float(r["lat"]),
+                "lon": float(r["lon"]),
+                "type": r.get("type", ""),
+            })
+        except (KeyError, ValueError):
+            continue
+    return results
+
+
 @app.route("/api/search")
 def api_search():
     global _last_search_time
@@ -123,50 +189,38 @@ def api_search():
         time.sleep(wait)
     _last_search_time = time.time()
 
-    # Photon (fast, great autocomplete) → Nominatim fallback
+    all_results = []
+    headers = {"User-Agent": "iPhoneSpoofer/1.0"}
+
+    # Query Photon (fast, good autocomplete, up to 15 results)
     try:
         resp = http_requests.get(
             "https://photon.komoot.io/api/",
-            params={"q": query, "limit": 6},
-            headers={"User-Agent": "iPhoneSpoofer/1.0"},
+            params={"q": query, "limit": 15},
+            headers=headers,
             timeout=5,
         )
-        data = resp.json()
-        results = []
-        for f in data.get("features", []):
-            props = f.get("properties", {})
-            coords = f.get("geometry", {}).get("coordinates", [])
-            if len(coords) < 2:
-                continue
-            parts = [props.get("name", "")]
-            for key in ("city", "state", "country"):
-                if props.get(key):
-                    parts.append(props[key])
-            results.append({
-                "display_name": ", ".join(p for p in parts if p),
-                "lat": coords[1],
-                "lon": coords[0],
-                "type": props.get("osm_value", ""),
-            })
-        if results:
-            return jsonify(results)
+        all_results.extend(_parse_photon(resp.json()))
     except Exception:
         pass
 
+    # Query Nominatim (different ranking, catches things Photon misses)
     try:
         resp = http_requests.get(
             "https://nominatim.openstreetmap.org/search",
-            params={"q": query, "format": "json", "limit": 6},
-            headers={"User-Agent": "iPhoneSpoofer/1.0"},
-            timeout=10,
+            params={"q": query, "format": "json", "limit": 10, "addressdetails": 0},
+            headers=headers,
+            timeout=8,
         )
-        return jsonify([
-            {"display_name": r["display_name"], "lat": float(r["lat"]),
-             "lon": float(r["lon"]), "type": r.get("type", "")}
-            for r in resp.json()
-        ])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        all_results.extend(_parse_nominatim(resp.json()))
+    except Exception:
+        pass
+
+    if not all_results:
+        return jsonify([])
+
+    # Deduplicate and return up to 12 results
+    return jsonify(_dedup_results(all_results)[:12])
 
 
 # ── Route API ──────────────────────────────────────────────────

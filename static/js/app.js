@@ -21,8 +21,16 @@ const TILES = {
 let tileLayer;
 
 // ── Init ─────────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-    map = L.map("map", { zoomControl: false }).setView([40.7128, -74.006], 13);
+document.addEventListener("DOMContentLoaded", async () => {
+    // Load default location FIRST so the map opens on the user's real location
+    let startLat = 40.7128, startLon = -74.006;
+    try {
+        const r = await fetch("/api/default-location");
+        const d = await r.json();
+        if (d.lat && d.lon) { startLat = d.lat; startLon = d.lon; }
+    } catch (e) { /* NYC fallback */ }
+
+    map = L.map("map", { zoomControl: false }).setView([startLat, startLon], 13);
     tileLayer = L.tileLayer(TILES.dark.url, {
         attribution: TILES.dark.attr,
         maxZoom: 19,
@@ -71,22 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Load data
     pollDevice();
     loadSaved();
-    loadDefaultLocation();
     setInterval(pollDevice, 5000);
 });
 
 function $(id) { return document.getElementById(id); }
-
-// ── Default location ─────────────────────────────────────────
-async function loadDefaultLocation() {
-    try {
-        const r = await fetch("/api/default-location");
-        const d = await r.json();
-        if (d.lat && d.lon) {
-            map.setView([d.lat, d.lon], 13);
-        }
-    } catch (e) { /* keep default view */ }
-}
 
 // ── Toasts ───────────────────────────────────────────────────
 function toast(msg, type = "success") {
