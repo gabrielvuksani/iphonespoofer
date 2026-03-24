@@ -75,6 +75,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     $("btn-clear-recent").addEventListener("click", clearRecent);
     $("btn-wifi").addEventListener("click", () => switchConnection(true));
     $("btn-usb").addEventListener("click", () => switchConnection(false));
+    $("btn-connect").addEventListener("click", () => connectDevice(false));
+    $("btn-connect-wifi").addEventListener("click", () => connectDevice(true));
     $("search-input").addEventListener("input", onSearchInput);
     $("search-input").addEventListener("focus", () => {
         if ($("search-results").children.length > 0)
@@ -357,6 +359,39 @@ async function switchConnection(wifi) {
             toast(d.error || "Switch failed", "error");
         }
     } catch (e) { toast("Switch failed: " + e.message, "error"); }
+}
+
+// ── Device connect (from setup guide) ────────────────────────
+async function connectDevice(wifi = false) {
+    const status = $("connect-status");
+    const btnUsb = $("btn-connect");
+    const btnWifi = $("btn-connect-wifi");
+    if (btnUsb) btnUsb.disabled = true;
+    if (btnWifi) btnWifi.disabled = true;
+    if (status) status.textContent = wifi ? "Connecting via WiFi..." : "Connecting via USB...";
+
+    try {
+        const r = await fetch("/api/device/connect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wifi }),
+        });
+        const d = await r.json();
+        if (r.ok) {
+            toast(`Connected via ${d.connection_type}`);
+            if (status) status.textContent = "";
+            pollDevice();
+        } else {
+            toast(d.error || "Connection failed", "error");
+            if (status) status.textContent = d.error || "Connection failed — check device and retry";
+        }
+    } catch (e) {
+        toast("Connection error", "error");
+        if (status) status.textContent = "Connection error — is the app running?";
+    } finally {
+        if (btnUsb) btnUsb.disabled = false;
+        if (btnWifi) btnWifi.disabled = false;
+    }
 }
 
 // ── Recent locations ─────────────────────────────────────────

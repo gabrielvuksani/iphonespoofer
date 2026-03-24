@@ -36,35 +36,23 @@ import app as app_module
 
 
 def start_backend():
-    """Initialize tunnel, device connection, and Flask server."""
+    """Initialize tunnel, optional device connection, and Flask server."""
     # Step 1: Tunnel
-    print("[1/3] Setting up tunnel...")
-    tunnel_ok = ensure_tunnel(timeout=30)
+    print("[1/2] Setting up tunnel...")
+    ensure_tunnel(timeout=30)
 
-    if not tunnel_ok:
-        print("[!] Tunnel not available — app will show connection guide")
-        app_module.device_mgr = DeviceManager.__new__(DeviceManager)
-        app_module.device_mgr.device_info = {
-            "name": None, "ios_version": None, "udid": None,
-            "model": None, "connected": False,
-        }
-        app_module.loc_svc = None
-        app.run(host="127.0.0.1", port=PORT, debug=False, use_reloader=False)
-        return
-
-    # Step 2: Connect device
-    print("[2/3] Connecting to device...")
+    # Step 2: Create device manager, try quick auto-connect
     device_mgr = DeviceManager()
+    app_module.device_mgr = device_mgr
+    app_module.loc_svc = None
+
+    print("[2/2] Looking for device...")
     try:
-        device_mgr.connect()
-        loc_svc = LocationService(device_mgr.simulator, device_mgr.bridge)
-        app_module.device_mgr = device_mgr
-        app_module.loc_svc = loc_svc
-        print("[3/3] Ready")
-    except Exception as e:
-        print(f"[!] Device connection failed: {e}")
-        app_module.device_mgr = device_mgr
-        app_module.loc_svc = None
+        device_mgr.connect(retries=3)
+        app_module.loc_svc = LocationService(device_mgr.simulator, device_mgr.bridge)
+        print("[+] Device connected")
+    except Exception:
+        print("[*] No device yet — connect from the UI")
 
     app.run(host="127.0.0.1", port=PORT, debug=False, use_reloader=False)
 

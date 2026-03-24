@@ -157,9 +157,11 @@ class DeviceManager:
         self.simulator = LocationSimulation(self.provider)
         await self.simulator.connect()
 
-    def connect(self, prefer_wifi=False):
+    def connect(self, prefer_wifi=False, retries=15, delay=2):
         """Full connection flow."""
-        addr, port, udid, conn_type = self._get_tunnel_info(prefer_wifi=prefer_wifi)
+        addr, port, udid, conn_type = self._get_tunnel_info(
+            prefer_wifi=prefer_wifi, retries=retries, delay=delay
+        )
         self.device_info["udid"] = udid
         self.device_info["connection_type"] = conn_type
 
@@ -171,8 +173,8 @@ class DeviceManager:
               f"{self.device_info['model']}")
         return self.device_info
 
-    def reconnect(self, prefer_wifi=False):
-        """Disconnect current and reconnect (e.g. switching USB → WiFi)."""
+    def disconnect(self):
+        """Disconnect from the current device."""
         if self.provider:
             try:
                 self.bridge.run(self.provider.close())
@@ -180,9 +182,19 @@ class DeviceManager:
                 pass
             self.provider = None
             self.simulator = None
-
+        if self.rsd:
+            try:
+                self.bridge.run(self.rsd.close())
+            except Exception:
+                pass
+            self.rsd = None
         self.device_info["connected"] = False
-        return self.connect(prefer_wifi=prefer_wifi)
+        self.device_info["connection_type"] = None
+
+    def reconnect(self, prefer_wifi=False, retries=15, delay=2):
+        """Disconnect current and reconnect (e.g. switching USB → WiFi)."""
+        self.disconnect()
+        return self.connect(prefer_wifi=prefer_wifi, retries=retries, delay=delay)
 
     def get_device_info(self):
         return dict(self.device_info)

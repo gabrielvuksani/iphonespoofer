@@ -34,13 +34,36 @@ fi
 
 REAL_USER="${SUDO_USER:-$USER}"
 
-# ── Python ───────────────────────────────────────────────
-PYTHON=$(su "$REAL_USER" -c "which python3" 2>/dev/null || which python3)
+# ── Python (prefer 3.13+ for WiFi/TCP tunnel support) ───
+PYTHON=""
+for p in python3.13 python3; do
+    P=$(su "$REAL_USER" -c "which $p" 2>/dev/null)
+    if [ -n "$P" ]; then
+        PYTHON="$P"
+        break
+    fi
+done
+if [ -z "$PYTHON" ]; then
+    echo "[!] Python 3 not found. Install with: brew install python@3.13"
+    exit 1
+fi
 PY_VER=$($PYTHON -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 echo "[+] Python $PY_VER ($PYTHON)"
 
-# ── Venv (owned by real user) ────────────────────────────
-if [ ! -d "$VENV_DIR" ] || [ "$(stat -f '%Su' "$VENV_DIR" 2>/dev/null)" = "root" ]; then
+# ── Venv (owned by real user, recreate if Python version changed) ──
+NEED_VENV=false
+if [ ! -d "$VENV_DIR" ]; then
+    NEED_VENV=true
+elif [ "$(stat -f '%Su' "$VENV_DIR" 2>/dev/null)" = "root" ]; then
+    NEED_VENV=true
+else
+    VENV_PY=$("$VENV_DIR/bin/python3" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null)
+    if [ "$VENV_PY" != "$PY_VER" ]; then
+        echo "[*] Upgrading venv from Python $VENV_PY to $PY_VER..."
+        NEED_VENV=true
+    fi
+fi
+if $NEED_VENV; then
     rm -rf "$VENV_DIR" 2>/dev/null || true
     echo "[*] Creating venv..."
     su "$REAL_USER" -c "'$PYTHON' -m venv '$VENV_DIR'"

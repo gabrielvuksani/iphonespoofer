@@ -195,10 +195,20 @@
         </div>
         <!-- Setup guide shown when disconnected -->
         <div class="card-body hidden" id="setup-guide">
-            <div class="setup-step"><span class="setup-dot"></span> Connect iPhone via USB cable</div>
+            <div class="setup-step"><span class="setup-dot"></span> Connect iPhone via USB or WiFi</div>
             <div class="setup-step"><span class="setup-dot"></span> Tap "Trust This Computer" on iPhone</div>
             <div class="setup-step"><span class="setup-dot"></span> Enable Developer Mode in Settings</div>
-            <p class="hint" style="margin-top:8px">Restart the app after connecting.</p>
+            <div class="btn-group" style="margin-top:8px">
+                <button id="btn-connect" class="btn btn-blue btn-xs">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                    Connect USB
+                </button>
+                <button id="btn-connect-wifi" class="btn btn-ghost btn-xs">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                    Connect WiFi
+                </button>
+            </div>
+            <p class="hint" id="connect-status" style="margin-top:6px"></p>
         </div>
     </div>
 

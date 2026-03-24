@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request, render_template
 
 from device_manager import DeviceManager
 from location_service import LocationService
+from tunnel_service import is_tunneld_running, ensure_tunnel
 
 
 PORT = 8080
@@ -76,6 +77,47 @@ def api_device_switch():
         return jsonify({"status": "Switched", **info})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/device/connect", methods=["POST"])
+def api_device_connect():
+    """Connect or reconnect to a device from the UI."""
+    global device_mgr, loc_svc
+
+    data = request.json or {}
+    prefer_wifi = data.get("wifi", False)
+
+    # Ensure tunnel is running (prompts admin if needed)
+    if not is_tunneld_running():
+        if not ensure_tunnel(timeout=30):
+            return jsonify({"error": "Tunnel failed to start. Grant admin access when prompted."}), 503
+
+    # Ensure device manager exists
+    if device_mgr is None:
+        device_mgr = DeviceManager()
+
+    # Stop existing location services
+    if loc_svc:
+        loc_svc._stop_keepalive()
+        loc_svc.stop_route()
+
+    try:
+        if device_mgr.device_info.get("connected"):
+            info = device_mgr.reconnect(prefer_wifi=prefer_wifi, retries=10)
+        else:
+            info = device_mgr.connect(prefer_wifi=prefer_wifi, retries=10)
+
+        loc_svc = LocationService(device_mgr.simulator, device_mgr.bridge)
+        return jsonify({"status": "Connected", **info})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tunnel/status")
+def api_tunnel_status():
+    """Check if the tunnel service is running."""
+    running = is_tunneld_running()
+    return jsonify({"running": running})
 
 
 # ── Default location (IP geolocation for initial map center) ──
@@ -368,12 +410,16 @@ def main():
 
     device_mgr = DeviceManager()
 
-    print("[1/2] Connecting to device...")
-    info = device_mgr.connect()
-    print(f"      UDID:  {info['udid']}")
+    print("[*] Looking for device...")
+    try:
+        info = device_mgr.connect(retries=5)
+        print(f"    UDID: {info['udid']}")
+        loc_svc = LocationService(device_mgr.simulator, device_mgr.bridge)
+        print("[+] Device connected")
+    except Exception:
+        print("[*] No device found yet — connect from the UI")
+        loc_svc = None
 
-    print("[2/2] Starting location service...")
-    loc_svc = LocationService(device_mgr.simulator, device_mgr.bridge)
     print()
     print(f"[+] Ready! Open http://localhost:{PORT} in your browser")
     print("    Press Ctrl+C to stop")
