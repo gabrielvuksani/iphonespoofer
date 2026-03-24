@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.venv/
+venv/
+
+# Build
+build/
+dist/
+*.spec
+
+# macOS
+.DS_Store
+*.dmg
+
+# App data
+saved_locations.json
+.tunneld.log
+
+# IDE
+.idea/
+.vscode/
+*.swp

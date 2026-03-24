@@ -1,0 +1,4 @@
+pymobiledevice3>=4.0.0
+flask>=3.0.0
+requests>=2.31.0
+pywebview>=5.0
