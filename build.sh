@@ -44,8 +44,26 @@ rm -rf "$DIST_DIR" build *.spec
 echo "[4/5] Building app bundle..."
 echo "      This takes 2-5 minutes..."
 
-# Use icon if available
+# Generate icon from SVG if needed
 ICON_FLAG=""
+if [ -f "$SCRIPT_DIR/icon.svg" ] && [ ! -f "$SCRIPT_DIR/icon.icns" ]; then
+    echo "      Generating app icon..."
+    ICONSET="/tmp/AppIcon.iconset"
+    rm -rf "$ICONSET" && mkdir -p "$ICONSET"
+    qlmanage -t -s 1024 -o /tmp/ "$SCRIPT_DIR/icon.svg" &>/dev/null
+    SRC="/tmp/icon.svg.png"
+    for s in 16 32 64 128 256 512 1024; do
+        sips -z $s $s "$SRC" --out "$ICONSET/icon_${s}x${s}.png" &>/dev/null
+    done
+    cp "$ICONSET/icon_32x32.png" "$ICONSET/icon_16x16@2x.png"
+    cp "$ICONSET/icon_64x64.png" "$ICONSET/icon_32x32@2x.png"
+    cp "$ICONSET/icon_256x256.png" "$ICONSET/icon_128x128@2x.png"
+    cp "$ICONSET/icon_512x512.png" "$ICONSET/icon_256x256@2x.png"
+    cp "$ICONSET/icon_1024x1024.png" "$ICONSET/icon_512x512@2x.png"
+    rm -f "$ICONSET/icon_64x64.png" "$ICONSET/icon_1024x1024.png"
+    iconutil -c icns "$ICONSET" -o "$SCRIPT_DIR/icon.icns" 2>/dev/null
+    rm -rf "$ICONSET" "$SRC"
+fi
 if [ -f "$SCRIPT_DIR/icon.icns" ]; then
     ICON_FLAG="--icon=$SCRIPT_DIR/icon.icns"
 fi
