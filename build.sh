@@ -44,6 +44,12 @@ rm -rf "$DIST_DIR" build *.spec
 echo "[4/5] Building app bundle..."
 echo "      This takes 2-5 minutes..."
 
+# Use icon if available
+ICON_FLAG=""
+if [ -f "$SCRIPT_DIR/icon.icns" ]; then
+    ICON_FLAG="--icon=$SCRIPT_DIR/icon.icns"
+fi
+
 "$VPYTHON" -m PyInstaller \
     --name "$APP_NAME" \
     --windowed \
@@ -52,6 +58,7 @@ echo "      This takes 2-5 minutes..."
     --clean \
     --log-level WARN \
     --osx-bundle-identifier "$BUNDLE_ID" \
+    $ICON_FLAG \
     --add-data "templates:templates" \
     --add-data "static:static" \
     --collect-all pymobiledevice3 \

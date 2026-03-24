@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0a0a1a"/>
+    </linearGradient>
+    <linearGradient id="pin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#79bbff"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#58a6ff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded square background -->
+  <rect width="1024" height="1024" rx="228" fill="url(#bg)"/>
+  <!-- Subtle grid lines -->
+  <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+    <line x1="0" y1="340" x2="1024" y2="340"/>
+    <line x1="0" y1="512" x2="1024" y2="512"/>
+    <line x1="0" y1="684" x2="1024" y2="684"/>
+    <line x1="340" y1="0" x2="340" y2="1024"/>
+    <line x1="512" y1="0" x2="512" y2="1024"/>
+    <line x1="684" y1="0" x2="684" y2="1024"/>
+  </g>
+  <!-- Outer pulse ring -->
+  <circle cx="512" cy="440" r="280" fill="none" stroke="url(#ring)" stroke-width="2"/>
+  <circle cx="512" cy="440" r="220" fill="none" stroke="url(#ring)" stroke-width="1.5"/>
+  <!-- Location pin -->
+  <g transform="translate(512, 440)">
+    <!-- Pin shadow -->
+    <ellipse cx="0" cy="280" rx="80" ry="20" fill="rgba(0,0,0,0.3)"/>
+    <!-- Pin body -->
+    <path d="M0-200 C-110-200-200-110-200 0 C-200 140 0 280 0 280 C0 280 200 140 200 0 C200-110 110-200 0-200Z" fill="url(#pin)"/>
+    <!-- Inner circle -->
+    <circle cx="0" cy="-10" r="72" fill="#1a1a2e"/>
+    <!-- Crosshair in center -->
+    <circle cx="0" cy="-10" r="28" fill="none" stroke="#58a6ff" stroke-width="6"/>
+    <line x1="0" y1="-50" x2="0" y2="30" stroke="#58a6ff" stroke-width="4" stroke-linecap="round"/>
+    <line x1="-40" y1="-10" x2="40" y2="-10" stroke="#58a6ff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>
