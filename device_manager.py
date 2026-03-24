@@ -16,9 +16,7 @@ TUNNELD_PORT = 49151
 
 
 class AsyncBridge:
-    """Persistent asyncio event loop in a background thread.
-    Needed because pymobiledevice3 v9+ is fully async but Flask is sync.
-    The loop stays alive so DVT connections persist across calls."""
+    """Persistent asyncio event loop in a background thread."""
 
     def __init__(self):
         self.loop = asyncio.new_event_loop()
@@ -30,7 +28,6 @@ class AsyncBridge:
         self.loop.run_forever()
 
     def run(self, coro):
-        """Submit an async coroutine and block until it completes."""
         future = asyncio.run_coroutine_threadsafe(coro, self.loop)
         return future.result(timeout=30)
 
@@ -48,11 +45,12 @@ class DeviceManager:
             "udid": None,
             "model": None,
             "connected": False,
+            "connection_type": None,  # "USB" or "WiFi"
         }
         atexit.register(self.shutdown)
 
-    def _get_tunnel_info(self, retries=15, delay=2):
-        """Poll the tunneld HTTP API until a USB device is found."""
+    def _get_tunnel_info(self, prefer_wifi=False, retries=15, delay=2):
+        """Poll tunneld HTTP API. Can prefer WiFi or USB connections."""
         for attempt in range(retries):
             try:
                 resp = http_requests.get(
@@ -68,21 +66,35 @@ class DeviceManager:
                     time.sleep(delay)
                     continue
 
-                # Prefer USB-connected device over network
+                # Collect all available connections
+                usb_connections = []
+                wifi_connections = []
                 for device_udid, entries in data.items():
                     for entry in entries:
                         iface = entry.get("interface", "")
+                        info = (entry["tunnel-address"], entry["tunnel-port"], device_udid, iface)
                         if "USB" in iface:
-                            print(f"[+] Found USB device: {device_udid}")
-                            print(f"    Tunnel: {entry['tunnel-address']}:{entry['tunnel-port']}")
-                            return entry["tunnel-address"], entry["tunnel-port"], device_udid
+                            usb_connections.append(info)
+                        else:
+                            wifi_connections.append(info)
 
-                # Fallback to first device if no USB found
-                device_udid = list(data.keys())[0]
-                entry = data[device_udid][0]
-                print(f"[+] Found device: {device_udid}")
-                print(f"    Tunnel: {entry['tunnel-address']}:{entry['tunnel-port']}")
-                return entry["tunnel-address"], entry["tunnel-port"], device_udid
+                # Pick based on preference
+                if prefer_wifi and wifi_connections:
+                    addr, port, udid, iface = wifi_connections[0]
+                    conn_type = "WiFi"
+                elif usb_connections:
+                    addr, port, udid, iface = usb_connections[0]
+                    conn_type = "USB"
+                elif wifi_connections:
+                    addr, port, udid, iface = wifi_connections[0]
+                    conn_type = "WiFi"
+                else:
+                    time.sleep(delay)
+                    continue
+
+                print(f"[+] Found device ({conn_type}): {udid}")
+                print(f"    Tunnel: {addr}:{port}")
+                return addr, port, udid, conn_type
 
             except (
                 http_requests.ConnectionError,
@@ -96,17 +108,34 @@ class DeviceManager:
         raise ConnectionError(
             "Could not find a connected device after multiple retries.\n"
             "Checklist:\n"
-            "  1. iPhone connected via USB cable\n"
+            "  1. iPhone connected via USB or on the same WiFi network\n"
             "  2. iPhone unlocked and 'Trust This Computer' accepted\n"
             "  3. Developer Mode enabled: Settings > Privacy & Security > Developer Mode\n"
         )
 
+    def get_available_connections(self):
+        """Return list of available device connections (USB and WiFi)."""
+        try:
+            resp = http_requests.get(f"http://127.0.0.1:{TUNNELD_PORT}", timeout=3)
+            data = resp.json()
+            connections = []
+            for udid, entries in data.items():
+                for entry in entries:
+                    iface = entry.get("interface", "")
+                    connections.append({
+                        "udid": udid,
+                        "type": "USB" if "USB" in iface else "WiFi",
+                        "address": entry["tunnel-address"],
+                        "port": entry["tunnel-port"],
+                    })
+            return connections
+        except Exception:
+            return []
+
     async def _init_connection(self, tunnel_address, tunnel_port):
-        """Initialize the RSD + DVT connection to the device."""
         self.rsd = RemoteServiceDiscoveryService((tunnel_address, tunnel_port))
         await self.rsd.connect()
 
-        # Extract device info from peer_info.Properties
         props = {}
         try:
             props = self.rsd.peer_info.get("Properties", {})
@@ -122,32 +151,43 @@ class DeviceManager:
         self.device_info["model"] = props.get("ProductType", "Unknown")
         self.device_info["udid"] = props.get("UniqueDeviceID", self.device_info.get("udid"))
 
-        # Connect the DVT provider
         self.provider = DvtProvider(self.rsd)
         await self.provider.connect()
 
-        # Create and connect the location simulator (acquires DTX channel)
         self.simulator = LocationSimulation(self.provider)
         await self.simulator.connect()
 
-    def connect(self):
-        """Full connection flow: find device via tunnel, init DVT, return info."""
-        tunnel_address, tunnel_port, udid = self._get_tunnel_info()
+    def connect(self, prefer_wifi=False):
+        """Full connection flow."""
+        addr, port, udid, conn_type = self._get_tunnel_info(prefer_wifi=prefer_wifi)
         self.device_info["udid"] = udid
+        self.device_info["connection_type"] = conn_type
 
-        self.bridge.run(self._init_connection(tunnel_address, tunnel_port))
+        self.bridge.run(self._init_connection(addr, port))
 
         self.device_info["connected"] = True
-        print(f"[+] Connected: {self.device_info['name']} | "
+        print(f"[+] Connected ({conn_type}): {self.device_info['name']} | "
               f"iOS {self.device_info['ios_version']} | "
               f"{self.device_info['model']}")
         return self.device_info
+
+    def reconnect(self, prefer_wifi=False):
+        """Disconnect current and reconnect (e.g. switching USB → WiFi)."""
+        if self.provider:
+            try:
+                self.bridge.run(self.provider.close())
+            except Exception:
+                pass
+            self.provider = None
+            self.simulator = None
+
+        self.device_info["connected"] = False
+        return self.connect(prefer_wifi=prefer_wifi)
 
     def get_device_info(self):
         return dict(self.device_info)
 
     def shutdown(self):
-        """Clean up DVT connection and tunneld subprocess."""
         if self.provider:
             try:
                 self.bridge.run(self.provider.close())
@@ -159,8 +199,6 @@ class DeviceManager:
             self.tunneld_process.terminate()
             try:
                 self.tunneld_process.wait(timeout=5)
-                print("[+] tunneld terminated")
             except subprocess.TimeoutExpired:
                 self.tunneld_process.kill()
-                print("[!] tunneld force killed")
         self.device_info["connected"] = False

@@ -73,6 +73,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     $("btn-zoom-out").addEventListener("click", () => map.zoomOut());
     $("btn-teleport").addEventListener("click", toggleTeleport);
     $("btn-clear-recent").addEventListener("click", clearRecent);
+    $("btn-wifi").addEventListener("click", () => switchConnection(true));
+    $("btn-usb").addEventListener("click", () => switchConnection(false));
     $("search-input").addEventListener("input", onSearchInput);
     $("search-input").addEventListener("focus", () => {
         if ($("search-results").children.length > 0)
@@ -313,14 +315,21 @@ async function pollDevice() {
         const dot = $("device-dot");
         if (d.connected) {
             dot.classList.add("connected");
+            const connType = d.connection_type || "USB";
             $("device-label").textContent = d.name || "iPhone";
             $("dev-name").textContent = d.name || "iPhone";
             $("dev-ios").textContent = d.ios_version || "--";
             $("dev-model").textContent = d.model || "--";
             $("dev-udid").textContent = d.udid || "--";
+            const connBadge = $("dev-conn");
+            connBadge.textContent = connType;
+            connBadge.className = "conn-badge " + connType.toLowerCase();
             $("device-body").classList.remove("hidden");
             $("setup-guide").classList.add("hidden");
-            if (!wasConnected) { wasConnected = true; toast("iPhone connected"); }
+            // Show relevant switch button
+            $("btn-wifi").classList.toggle("hidden", connType === "WiFi");
+            $("btn-usb").classList.toggle("hidden", connType === "USB");
+            if (!wasConnected) { wasConnected = true; toast(`iPhone connected (${connType})`); }
         } else {
             dot.classList.remove("connected");
             $("device-label").textContent = "No device";
@@ -329,6 +338,25 @@ async function pollDevice() {
             wasConnected = false;
         }
     } catch (e) { /* server down */ }
+}
+
+// ── Connection switching ─────────────────────────────────────
+async function switchConnection(wifi) {
+    toast(wifi ? "Switching to WiFi..." : "Switching to USB...", "success");
+    try {
+        const r = await fetch("/api/device/switch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wifi }),
+        });
+        const d = await r.json();
+        if (r.ok) {
+            toast(`Connected via ${d.connection_type}${wifi ? " — you can unplug the cable now" : ""}`);
+            pollDevice();
+        } else {
+            toast(d.error || "Switch failed", "error");
+        }
+    } catch (e) { toast("Switch failed: " + e.message, "error"); }
 }
 
 // ── Recent locations ─────────────────────────────────────────

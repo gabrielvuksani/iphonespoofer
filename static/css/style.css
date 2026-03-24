@@ -587,6 +587,34 @@ body {
     background: var(--text-tertiary); flex-shrink: 0;
 }
 
+/* ── Connection badge ────────────────────────────── */
+
+.conn-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 1px 7px; border-radius: 100px;
+    background: rgba(255,255,255,0.06);
+    color: var(--text-secondary);
+}
+.conn-badge.usb { background: rgba(88,166,255,0.12); color: var(--blue); }
+.conn-badge.wifi { background: rgba(63,185,80,0.12); color: var(--green); }
+
+.btn-xs {
+    padding: 4px 8px; font-size: 10px;
+    border-radius: 5px; flex: 1;
+}
+
+/* ── Tips ─────────────────────────────────────────── */
+
+.tip-item {
+    display: flex; align-items: flex-start; gap: 7px;
+    padding: 6px 0; font-size: 11px; line-height: 1.5;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+}
+.tip-item:last-child { border-bottom: none; }
+.tip-item svg { flex-shrink: 0; margin-top: 2px; }
+.tip-item strong { color: var(--text); }
+
 /* ── Scrollbar ───────────────────────────────────── */
 
 ::-webkit-scrollbar { width: 3px; }

@@ -177,7 +177,21 @@
         <div class="card-body" id="device-body">
             <div class="meta-row"><span class="meta-label">iOS</span><span id="dev-ios">--</span></div>
             <div class="meta-row"><span class="meta-label">Model</span><span id="dev-model">--</span></div>
+            <div class="meta-row">
+                <span class="meta-label">Connection</span>
+                <span id="dev-conn" class="conn-badge">--</span>
+            </div>
             <div class="meta-row"><span class="meta-label">UDID</span><span id="dev-udid" class="mono truncate">--</span></div>
+            <div class="btn-group" style="margin-top:6px">
+                <button id="btn-wifi" class="btn btn-ghost btn-xs" title="Switch to WiFi (no cable needed)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                    Switch to WiFi
+                </button>
+                <button id="btn-usb" class="btn btn-ghost btn-xs" title="Switch to USB (more stable)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    Switch to USB
+                </button>
+            </div>
         </div>
         <!-- Setup guide shown when disconnected -->
         <div class="card-body hidden" id="setup-guide">
@@ -250,6 +264,28 @@
         </div>
         <div class="card-body">
             <div id="popular-list" class="saved-list"></div>
+        </div>
+    </div>
+
+    <!-- Tips card (iOS 18 persistence) -->
+    <div class="card" id="tips-card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Tips</span>
+        </div>
+        <div class="card-body">
+            <div class="tip-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                <span><strong>Go wireless:</strong> Switch to WiFi mode above to unplug your cable while keeping location active.</span>
+            </div>
+            <div class="tip-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span><strong>Reduce drift:</strong> On iPhone, go to Settings &rarr; Privacy &rarr; Location Services &rarr; System Services &rarr; turn OFF "Improve Location Accuracy".</span>
+            </div>
+            <div class="tip-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span><strong>Pokemon Go:</strong> Use walking speed (5 km/h), avoid big jumps, and wait 2+ hours between distant teleports.</span>
+            </div>
         </div>
     </div>
 

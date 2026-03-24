@@ -42,8 +42,40 @@ def index():
 def api_device():
     if device_mgr is None:
         return jsonify({"connected": False, "name": None, "ios_version": None,
-                        "udid": None, "model": None, "error": "Tunnel not running"})
+                        "udid": None, "model": None, "connection_type": None,
+                        "error": "Tunnel not running"})
     return jsonify(device_mgr.get_device_info())
+
+
+@app.route("/api/device/connections")
+def api_device_connections():
+    """List all available connections (USB + WiFi)."""
+    if device_mgr is None:
+        return jsonify([])
+    return jsonify(device_mgr.get_available_connections())
+
+
+@app.route("/api/device/switch", methods=["POST"])
+def api_device_switch():
+    """Switch connection mode (USB ↔ WiFi)."""
+    if device_mgr is None:
+        return jsonify({"error": "Not initialized"}), 503
+    data = request.json or {}
+    prefer_wifi = data.get("wifi", False)
+    try:
+        # Stop keep-alive before reconnecting
+        if loc_svc:
+            loc_svc._stop_keepalive()
+        info = device_mgr.reconnect(prefer_wifi=prefer_wifi)
+        # Re-bind the simulator to the location service
+        if loc_svc:
+            loc_svc.simulator = device_mgr.simulator
+            # Resume keep-alive if location was set
+            if loc_svc.current_location:
+                loc_svc._start_keepalive()
+        return jsonify({"status": "Switched", **info})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ── Default location (IP geolocation for initial map center) ──
