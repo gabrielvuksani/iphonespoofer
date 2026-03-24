@@ -50,7 +50,26 @@ Full UI overhaul + 12 functionality upgrades for the iPhone Location Spoofer app
 
 ### Light Theme
 
-Light theme gets matching treatment: lighter purples (`#7C3AED` accent), adjusted glows with lower opacity, white/gray surfaces. Same layout, inverted tokens.
+Light theme gets matching treatment with explicit token values:
+
+| Token | Dark | Light |
+|-------|------|-------|
+| `--accent` | `#8B5CF6` | `#7C3AED` |
+| `--accent-glow` | `rgba(139,92,246,0.15)` | `rgba(124,58,237,0.1)` |
+| `--green` | `#39FF14` | `#16A34A` |
+| `--green-bg` | `rgba(57,255,20,0.1)` | `rgba(22,163,74,0.08)` |
+| `--red` | `#FF3366` | `#DC2626` |
+| `--red-bg` | `rgba(255,51,102,0.1)` | `rgba(220,38,38,0.08)` |
+| `--amber` | `#FFE031` | `#D97706` |
+| `--bg` | `#0A0A0F` | `#F0F2F5` |
+| `--surface` | `rgba(15,15,22,0.88)` | `rgba(255,255,255,0.85)` |
+| `--surface-solid` | `#0F0F16` | `#FFFFFF` |
+| `--border` | `rgba(139,92,246,0.12)` | `rgba(124,58,237,0.1)` |
+| `--text` | `#E2E8F0` | `#1A1D24` |
+| `--text-secondary` | `rgba(226,232,240,0.5)` | `rgba(26,29,36,0.5)` |
+| `--text-tertiary` | `rgba(226,232,240,0.25)` | `rgba(26,29,36,0.3)` |
+
+Glow effects use lower opacity in light mode. Panel borders use purple tint at reduced opacity. Same layout structure.
 
 ---
 
@@ -171,7 +190,7 @@ Complete CSS rewrite of layout:
 **Frontend:**
 - Click device badge in topbar → dropdown appears below
 - Lists all devices with truncated UDID + connection badges (USB green, WiFi purple)
-- Click device → calls `/api/device/connect` with selected preference
+- Click device → uses `/api/device/connect` for new connections (device not yet connected), or `/api/device/switch` for toggling connection type on an already-connected device (e.g. USB→WiFi)
 - Dropdown dismisses on selection or outside click
 
 ### 3.6 Distance/ETA Overlay
