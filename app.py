@@ -50,15 +50,39 @@ def api_device():
 
 @app.route("/api/default-location")
 def api_default_location():
-    """Return approximate location based on IP for initial map centering."""
+    """Return approximate location via IP geolocation. Tries multiple providers."""
+    # Provider 1: ipinfo.io (most reliable, works on most networks)
     try:
-        r = http_requests.get("http://ip-api.com/json/?fields=lat,lon,city,country", timeout=3)
+        r = http_requests.get("https://ipinfo.io/json", timeout=3,
+                              headers={"User-Agent": "iPhoneSpoofer/1.0"})
+        data = r.json()
+        loc = data.get("loc", "")
+        if "," in loc:
+            lat, lon = loc.split(",")
+            return jsonify({"lat": float(lat), "lon": float(lon),
+                            "city": data.get("city", ""), "country": data.get("country", "")})
+    except Exception:
+        pass
+
+    # Provider 2: ipwho.is
+    try:
+        r = http_requests.get("https://ipwho.is/", timeout=3)
+        data = r.json()
+        if data.get("success") and "latitude" in data:
+            return jsonify({"lat": data["latitude"], "lon": data["longitude"],
+                            "city": data.get("city", ""), "country": data.get("country", "")})
+    except Exception:
+        pass
+
+    # Provider 3: ip-api.com (HTTP only, blocked on some networks)
+    try:
+        r = http_requests.get("http://ip-api.com/json/?fields=lat,lon,city,country", timeout=2)
         data = r.json()
         if "lat" in data and "lon" in data:
             return jsonify(data)
     except Exception:
         pass
-    # Fallback: New York
+
     return jsonify({"lat": 40.7128, "lon": -74.006, "city": "New York", "country": "US"})
 
 
