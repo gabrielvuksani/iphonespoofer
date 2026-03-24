@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iPhone Location Spoofer</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
     <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
@@ -12,39 +12,24 @@
 <!-- ═══ Onboarding overlay ═══ -->
 <div id="onboarding">
     <div class="ob-card">
-        <!-- Page 1: Welcome -->
         <div class="ob-page" id="ob-page-1">
             <div class="ob-icon">
-                <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             </div>
             <h1 class="ob-title">iPhone Location Spoofer</h1>
             <p class="ob-sub">Change your iPhone's GPS location in one click.<br>Works with all apps — Find My, Life360, Pokemon Go, and more.</p>
             <button class="btn btn-blue ob-btn" onclick="obNext(2)">Set Up Your Device</button>
             <button class="btn btn-ghost ob-btn-skip" onclick="obSkip()">Skip setup — I know what I'm doing</button>
         </div>
-
-        <!-- Page 2: Developer Mode -->
         <div class="ob-page hidden" id="ob-page-2">
             <div class="ob-badge">Step 1 of 3</div>
             <h2 class="ob-title">Enable Developer Mode</h2>
             <p class="ob-sub">This is required for your iPhone to accept simulated locations. It's a built-in Apple feature — safe to enable.</p>
             <div class="ob-instructions">
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">1</span>
-                    <span>Open <strong>Settings</strong> on your iPhone</span>
-                </div>
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">2</span>
-                    <span>Go to <strong>Privacy & Security</strong></span>
-                </div>
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">3</span>
-                    <span>Scroll down and tap <strong>Developer Mode</strong></span>
-                </div>
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">4</span>
-                    <span>Toggle it <strong>ON</strong> and restart your iPhone when prompted</span>
-                </div>
+                <div class="ob-instr-step"><span class="ob-instr-num">1</span><span>Open <strong>Settings</strong> on your iPhone</span></div>
+                <div class="ob-instr-step"><span class="ob-instr-num">2</span><span>Go to <strong>Privacy & Security</strong></span></div>
+                <div class="ob-instr-step"><span class="ob-instr-num">3</span><span>Scroll down and tap <strong>Developer Mode</strong></span></div>
+                <div class="ob-instr-step"><span class="ob-instr-num">4</span><span>Toggle it <strong>ON</strong> and restart your iPhone when prompted</span></div>
             </div>
             <div class="ob-note">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
@@ -55,29 +40,15 @@
                 <button class="btn btn-blue" onclick="obNext(3)">Next</button>
             </div>
         </div>
-
-        <!-- Page 3: Connect & Trust -->
         <div class="ob-page hidden" id="ob-page-3">
             <div class="ob-badge">Step 2 of 3</div>
             <h2 class="ob-title">Connect & Trust</h2>
             <p class="ob-sub">Plug your iPhone into your computer with a USB cable.</p>
             <div class="ob-instructions">
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">1</span>
-                    <span>Connect your iPhone via <strong>USB cable</strong> (Lightning or USB-C)</span>
-                </div>
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">2</span>
-                    <span><strong>Unlock</strong> your iPhone</span>
-                </div>
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">3</span>
-                    <span>Tap <strong>"Trust"</strong> when the "Trust This Computer?" dialog appears</span>
-                </div>
-                <div class="ob-instr-step">
-                    <span class="ob-instr-num">4</span>
-                    <span>Enter your iPhone <strong>passcode</strong> to confirm</span>
-                </div>
+                <div class="ob-instr-step"><span class="ob-instr-num">1</span><span>Connect your iPhone via <strong>USB cable</strong> (Lightning or USB-C)</span></div>
+                <div class="ob-instr-step"><span class="ob-instr-num">2</span><span><strong>Unlock</strong> your iPhone</span></div>
+                <div class="ob-instr-step"><span class="ob-instr-num">3</span><span>Tap <strong>"Trust"</strong> when the "Trust This Computer?" dialog appears</span></div>
+                <div class="ob-instr-step"><span class="ob-instr-num">4</span><span>Enter your iPhone <strong>passcode</strong> to confirm</span></div>
             </div>
             <div class="ob-note">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
@@ -88,47 +59,35 @@
                 <button class="btn btn-blue" onclick="obNext(4)">Next</button>
             </div>
         </div>
-
-        <!-- Page 4: Ready -->
         <div class="ob-page hidden" id="ob-page-4">
             <div class="ob-badge">Step 3 of 3</div>
             <h2 class="ob-title">You're All Set</h2>
             <p class="ob-sub">Here's how to use the app:</p>
             <div class="ob-instructions">
                 <div class="ob-instr-step">
-                    <span class="ob-instr-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    </span>
-                    <span><strong>Click the map</strong> to place a marker, then press Set Location</span>
+                    <span class="ob-instr-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                    <span><strong>Click the map</strong> to place a marker, then press Warp</span>
                 </div>
                 <div class="ob-instr-step">
-                    <span class="ob-instr-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                    </span>
+                    <span class="ob-instr-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
                     <span>Turn on <strong>Teleport mode</strong> to set GPS with a single click</span>
                 </div>
                 <div class="ob-instr-step">
-                    <span class="ob-instr-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    </span>
+                    <span class="ob-instr-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                     <span><strong>Search</strong> any address or place name in the top bar</span>
                 </div>
                 <div class="ob-instr-step">
-                    <span class="ob-instr-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    </span>
+                    <span class="ob-instr-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
                     <span><strong>Shift+click</strong> multiple points to simulate movement along a route</span>
                 </div>
             </div>
-            <div class="ob-note" style="border-color: rgba(63,185,80,0.2); color: var(--green);">
+            <div class="ob-note" style="border-color: rgba(57,255,20,0.2); color: var(--green);">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 <span>iOS 18+: Keep your phone plugged in while spoofing. The location resets when unplugged.</span>
             </div>
             <button class="btn btn-blue ob-btn" onclick="obDone()">Start Using the App</button>
             <label class="ob-check"><input type="checkbox" id="ob-dismiss" checked /> Don't show this again</label>
         </div>
-
-        <!-- Page dots -->
         <div class="ob-dots">
             <span class="ob-dot active" data-page="1"></span>
             <span class="ob-dot" data-page="2"></span>
@@ -144,9 +103,6 @@
 <!-- ═══ Top bar ═══ -->
 <div id="topbar">
     <div class="topbar-left">
-        <button id="sidebar-toggle" class="icon-btn" title="Menu">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
         <div class="search-container">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="search-input" placeholder="Search any location..." autocomplete="off" />
@@ -154,72 +110,54 @@
         </div>
     </div>
     <div class="topbar-right">
-        <!-- Teleport mode toggle -->
         <button id="btn-teleport" class="teleport-btn" title="Instant teleport: click map to set location immediately">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             <span>Teleport</span>
         </button>
-        <div id="device-badge">
+        <button id="btn-coord-fmt" class="teleport-btn" title="Toggle coordinate format">DD</button>
+        <button id="btn-theme" class="teleport-btn" title="Toggle theme">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button id="btn-shortcuts" class="teleport-btn" title="Keyboard shortcuts">?</button>
+        <div id="device-badge" style="cursor:pointer" title="Click for device options">
             <span id="device-dot" class="dot"></span>
             <span id="device-label">Connecting...</span>
+            <span id="dev-conn" class="conn-badge" style="margin-left:2px">--</span>
         </div>
     </div>
 </div>
 
-<!-- ═══ Sidebar ═══ -->
-<div id="sidebar">
-    <!-- Device card -->
-    <div class="card" id="device-card">
-        <div class="card-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round"/></svg>
-            <span id="dev-name">iPhone</span>
-        </div>
-        <div class="card-body" id="device-body">
+<!-- ═══ HUD: Location Panel (left) ═══ -->
+<div id="panel-location" class="hud-panel hud-panel-left">
+    <div class="hud-panel-header" data-panel="panel-location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>LOCATION</span>
+        <button class="hud-panel-close" data-panel="panel-location">&times;</button>
+    </div>
+    <div class="hud-panel-body">
+        <!-- Device info compact -->
+        <div id="device-info-compact">
             <div class="meta-row"><span class="meta-label">iOS</span><span id="dev-ios">--</span></div>
             <div class="meta-row"><span class="meta-label">Model</span><span id="dev-model">--</span></div>
-            <div class="meta-row">
-                <span class="meta-label">Connection</span>
-                <span id="dev-conn" class="conn-badge">--</span>
-            </div>
             <div class="meta-row"><span class="meta-label">UDID</span><span id="dev-udid" class="mono truncate">--</span></div>
-            <div class="btn-group" style="margin-top:6px">
-                <button id="btn-wifi" class="btn btn-ghost btn-xs" title="Switch to WiFi (no cable needed)">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-                    Switch to WiFi
-                </button>
-                <button id="btn-usb" class="btn btn-ghost btn-xs" title="Switch to USB (more stable)">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                    Switch to USB
-                </button>
-            </div>
         </div>
-        <!-- Setup guide shown when disconnected -->
-        <div class="card-body hidden" id="setup-guide">
+        <!-- Setup guide (shown when no device) -->
+        <div class="hidden" id="setup-guide">
             <div class="setup-step"><span class="setup-dot"></span> Connect iPhone via USB or WiFi</div>
-            <div class="setup-step"><span class="setup-dot"></span> Tap "Trust This Computer" on iPhone</div>
-            <div class="setup-step"><span class="setup-dot"></span> Enable Developer Mode in Settings</div>
-            <div class="btn-group" style="margin-top:8px">
-                <button id="btn-connect" class="btn btn-blue btn-xs">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                    Connect USB
-                </button>
-                <button id="btn-connect-wifi" class="btn btn-ghost btn-xs">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-                    Connect WiFi
-                </button>
+            <div class="setup-step"><span class="setup-dot"></span> Tap "Trust This Computer"</div>
+            <div class="setup-step"><span class="setup-dot"></span> Enable Developer Mode</div>
+            <div class="btn-group" style="margin-top:6px">
+                <button id="btn-connect" class="btn btn-blue btn-xs">Connect USB</button>
+                <button id="btn-connect-wifi" class="btn btn-ghost btn-xs">Connect WiFi</button>
             </div>
-            <p class="hint" id="connect-status" style="margin-top:6px"></p>
+            <p class="hint" id="connect-status" style="margin-top:4px"></p>
         </div>
-    </div>
-
-    <!-- Location card -->
-    <div class="card">
-        <div class="card-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>Location</span>
-            <button id="btn-paste" class="btn-inline" title="Paste coordinates from clipboard">Paste</button>
+        <!-- Coordinate display -->
+        <div class="coord-display" id="coord-display">
+            <span id="coord-text" class="coord-glow">Click map to set location</span>
         </div>
-        <div class="card-body">
+        <!-- Coordinate inputs -->
+        <div id="coord-inputs">
             <div class="coord-row">
                 <label>Lat</label>
                 <input type="number" id="lat-input" step="any" placeholder="0.000000" />
@@ -227,106 +165,240 @@
             <div class="coord-row">
                 <label>Lon</label>
                 <input type="number" id="lon-input" step="any" placeholder="0.000000" />
+                <button id="btn-paste" class="btn-inline" title="Paste">Paste</button>
+            </div>
+        </div>
+        <!-- Action buttons -->
+        <div class="btn-group">
+            <button id="btn-set" class="btn btn-blue">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Warp
+            </button>
+            <button id="btn-clear" class="btn btn-ghost">Reset</button>
+            <button id="btn-undo" class="btn btn-ghost" disabled title="No previous location">Undo</button>
+            <button id="btn-save" class="btn btn-ghost">Save</button>
+        </div>
+        <!-- Inline save form -->
+        <div id="save-form" class="inline-form hidden">
+            <div class="section-divider"></div>
+            <div class="inline-form-title">SAVE LOCATION</div>
+            <input type="text" id="save-name" class="form-input" placeholder="Location name..." />
+            <div class="category-pills">
+                <button class="cat-pill active" data-cat="default">Favorite</button>
+                <button class="cat-pill" data-cat="work">Work</button>
+                <button class="cat-pill" data-cat="gaming">Gaming</button>
             </div>
             <div class="btn-group">
-                <button id="btn-set" class="btn btn-blue">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                    Set Location
-                </button>
-                <button id="btn-clear" class="btn btn-ghost">Reset</button>
+                <button id="btn-save-cancel" class="btn btn-ghost">Cancel</button>
+                <button id="btn-save-confirm" class="btn btn-blue">Save</button>
             </div>
         </div>
-    </div>
-
-    <!-- Recent locations card -->
-    <div class="card" id="recent-card">
-        <div class="card-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Recent</span>
-            <button id="btn-clear-recent" class="btn-inline" title="Clear history">Clear</button>
-        </div>
-        <div class="card-body">
-            <div id="recent-list" class="saved-list">
-                <div class="empty-state">No recent locations</div>
+        <!-- Inline schedule form -->
+        <div id="schedule-form" class="inline-form hidden">
+            <div class="section-divider"></div>
+            <div class="inline-form-title">ADD SCHEDULE</div>
+            <input type="text" id="schedule-name" class="form-input" placeholder="Schedule name..." />
+            <input type="time" id="schedule-time" class="form-input" value="08:00" />
+            <div class="day-pills">
+                <button class="day-pill active" data-day="mon">M</button>
+                <button class="day-pill active" data-day="tue">T</button>
+                <button class="day-pill active" data-day="wed">W</button>
+                <button class="day-pill active" data-day="thu">T</button>
+                <button class="day-pill active" data-day="fri">F</button>
+                <button class="day-pill" data-day="sat">S</button>
+                <button class="day-pill" data-day="sun">S</button>
+            </div>
+            <div class="btn-group">
+                <button id="btn-schedule-cancel" class="btn btn-ghost">Cancel</button>
+                <button id="btn-schedule-confirm" class="btn btn-blue">Add</button>
             </div>
         </div>
+        <!-- Cooldown -->
+        <div class="section-divider"></div>
+        <div class="cooldown-display">
+            <span id="cooldown-time" class="cooldown-time">00:00</span>
+            <div class="progress-track" style="flex:1"><div id="cooldown-bar" class="progress-bar cooldown-bar-fill"></div></div>
+            <span id="cooldown-badge" class="cooldown-badge hidden">SAFE</span>
+        </div>
+        <!-- Schedules in location panel -->
+        <div class="section-divider"></div>
+        <div style="display:flex;align-items:center;margin-bottom:4px">
+            <span class="hint" style="margin:0;font-weight:600;color:var(--text-secondary)">Schedules</span>
+            <button id="btn-schedule-add" class="btn-inline">+ Add</button>
+        </div>
+        <div id="schedule-list" class="saved-list"><div class="empty-state">No schedules</div></div>
     </div>
+</div>
 
-    <!-- Saved card -->
-    <div class="card">
-        <div class="card-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <span>Saved</span>
-            <button id="btn-save" class="btn-inline" title="Save current">+ Save</button>
-        </div>
-        <div class="card-body">
-            <div id="saved-list" class="saved-list">
-                <div class="empty-state">No saved locations</div>
-            </div>
-        </div>
+<!-- ═══ HUD: Places Panel (left, below location) ═══ -->
+<div id="panel-places" class="hud-panel hud-panel-left hud-panel-below">
+    <div class="hud-panel-header" data-panel="panel-places">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>PLACES</span>
+        <button class="hud-panel-close" data-panel="panel-places">&times;</button>
     </div>
-
-    <!-- Popular spots -->
-    <div class="card">
-        <div class="card-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-            <span>Popular</span>
+    <div class="hud-panel-body">
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="recent">Recent</button>
+            <button class="tab-btn" data-tab="saved">Saved</button>
+            <button class="tab-btn" data-tab="popular">Popular</button>
         </div>
-        <div class="card-body">
+        <div class="tab-content active" id="tab-recent">
+            <div id="recent-list" class="saved-list"><div class="empty-state">No recent locations</div></div>
+            <button id="btn-clear-recent" class="btn btn-ghost btn-xs" style="width:100%;margin-top:4px">Clear</button>
+        </div>
+        <div class="tab-content" id="tab-saved">
+            <div id="saved-list" class="saved-list"><div class="empty-state">No saved locations</div></div>
+        </div>
+        <div class="tab-content" id="tab-popular">
             <div id="popular-list" class="saved-list"></div>
         </div>
     </div>
+</div>
 
-    <!-- Tips card (iOS 18 persistence) -->
-    <div class="card" id="tips-card">
-        <div class="card-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>Tips</span>
-        </div>
-        <div class="card-body">
-            <div class="tip-item">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-                <span><strong>Go wireless:</strong> Switch to WiFi mode above to unplug your cable while keeping location active.</span>
-            </div>
-            <div class="tip-item">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                <span><strong>Reduce drift:</strong> On iPhone, go to Settings &rarr; Privacy &rarr; Location Services &rarr; System Services &rarr; turn OFF "Improve Location Accuracy".</span>
-            </div>
-            <div class="tip-item">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span><strong>Pokemon Go:</strong> Use walking speed (5 km/h), avoid big jumps, and wait 2+ hours between distant teleports.</span>
-            </div>
-        </div>
+<!-- ═══ HUD: Movement Panel (right) ═══ -->
+<div id="panel-movement" class="hud-panel hud-panel-right">
+    <div class="hud-panel-header" data-panel="panel-movement">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>MOVEMENT</span>
+        <button class="hud-panel-close" data-panel="panel-movement">&times;</button>
     </div>
-
-    <!-- Movement card -->
-    <div class="card">
-        <div class="card-header">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            <span>Movement</span>
-        </div>
-        <div class="card-body">
-            <p class="hint" id="route-hint">Shift+click map to add route points</p>
-            <div class="speed-segment">
-                <button class="seg-btn" data-speed="5">Walk</button>
-                <button class="seg-btn active" data-speed="15">Bike</button>
-                <button class="seg-btn" data-speed="40">Drive</button>
-                <div class="seg-custom">
-                    <input type="number" id="speed-input" value="15" min="1" max="300" />
-                    <span>km/h</span>
-                </div>
+    <div class="hud-panel-body">
+        <div class="speed-segment">
+            <button class="seg-btn" data-speed="5">Walk</button>
+            <button class="seg-btn active" data-speed="15">Bike</button>
+            <button class="seg-btn" data-speed="40">Drive</button>
+            <div class="seg-custom">
+                <input type="number" id="speed-input" value="15" min="1" max="300" />
+                <span>km/h</span>
             </div>
+        </div>
+        <p class="hint" id="route-hint">Shift+click map to add route points</p>
+        <div class="route-options">
+            <select id="route-mode">
+                <option value="once">Once</option>
+                <option value="loop">Loop</option>
+                <option value="pingpong">Ping-Pong</option>
+            </select>
+            <label class="check-label"><input type="checkbox" id="speed-randomize" /> Randomize</label>
+            <label class="check-label"><input type="checkbox" id="follow-mode" /> Follow</label>
+        </div>
+        <div class="btn-group">
+            <button id="btn-route-start" class="btn btn-blue" disabled>Start</button>
+            <button id="btn-route-pause" class="btn btn-ghost hidden">Pause</button>
+            <button id="btn-route-resume" class="btn btn-blue hidden">Resume</button>
+            <button id="btn-route-stop" class="btn btn-red" disabled>Stop</button>
+            <button id="btn-route-clear" class="btn btn-ghost">Clear</button>
+        </div>
+        <div id="route-progress" class="route-progress hidden">
+            <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+            <span id="route-pct">0%</span>
+        </div>
+        <div class="btn-group" style="margin-top:3px">
+            <button id="btn-gpx-import" class="btn btn-ghost btn-xs">Import GPX</button>
+            <button id="btn-gpx-export" class="btn btn-ghost btn-xs">Export GPX</button>
+            <input type="file" id="gpx-file" accept=".gpx" class="hidden" />
+        </div>
+        <div class="section-divider"></div>
+        <!-- Joystick -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span class="hint" style="margin:0">Joystick</span>
+            <span class="hint" style="margin:0">WASD / Arrows</span>
+        </div>
+        <div class="joystick-grid">
+            <div></div>
+            <button class="joy-btn" data-dir="n" title="North">&#9650;</button>
+            <div></div>
+            <button class="joy-btn" data-dir="w" title="West">&#9664;</button>
+            <button class="joy-btn joy-stop" id="btn-joy-stop" title="Stop">&#9632;</button>
+            <button class="joy-btn" data-dir="e" title="East">&#9654;</button>
+            <div></div>
+            <button class="joy-btn" data-dir="s" title="South">&#9660;</button>
+            <div></div>
+        </div>
+        <div class="section-divider"></div>
+        <!-- Wander -->
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+            <span class="hint" style="margin:0">Wander</span>
+            <div style="flex:1"></div>
+            <input type="number" id="wander-radius" value="200" min="10" max="5000" step="10" class="wander-input" />
+            <span class="hint" style="margin:0">m</span>
+        </div>
+        <div class="btn-group">
+            <button id="btn-wander-start" class="btn btn-blue btn-xs">Wander</button>
+            <button id="btn-wander-stop" class="btn btn-red btn-xs" disabled>Stop</button>
+            <button id="btn-circular" class="btn btn-ghost btn-xs">Circular</button>
+        </div>
+        <div class="section-divider"></div>
+        <!-- Route History -->
+        <div style="display:flex;align-items:center;margin-bottom:4px">
+            <span class="hint" style="margin:0;font-weight:600;color:var(--text-secondary)">Route History</span>
+            <button id="btn-route-save" class="btn-inline" style="display:none">+ Save</button>
+        </div>
+        <div id="route-history-list" class="saved-list"><div class="empty-state">No saved routes</div></div>
+        <!-- Inline profile save form -->
+        <div id="profile-form" class="inline-form hidden">
+            <div class="section-divider"></div>
+            <div class="inline-form-title">SAVE PROFILE</div>
+            <input type="text" id="profile-name" class="form-input" placeholder="Profile name..." />
             <div class="btn-group">
-                <button id="btn-route-start" class="btn btn-blue" disabled>Start Route</button>
-                <button id="btn-route-stop" class="btn btn-red" disabled>Stop</button>
-                <button id="btn-route-clear" class="btn btn-ghost">Clear</button>
-            </div>
-            <div id="route-progress" class="route-progress hidden">
-                <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
-                <span id="route-pct">0%</span>
+                <button id="btn-profile-cancel" class="btn btn-ghost">Cancel</button>
+                <button id="btn-profile-confirm" class="btn btn-blue">Save</button>
             </div>
         </div>
+        <div class="section-divider"></div>
+        <!-- Profiles -->
+        <div style="display:flex;align-items:center;margin-bottom:4px">
+            <span class="hint" style="margin:0;font-weight:600;color:var(--text-secondary)">Profiles</span>
+            <button id="btn-profile-save" class="btn-inline">+ Save</button>
+        </div>
+        <div id="profile-list" class="saved-list"><div class="empty-state">No profiles</div></div>
     </div>
+</div>
+
+<!-- ═══ HUD: Bottom Status Bar ═══ -->
+<div id="status-bar">
+    <div class="status-pill" id="status-cooldown">
+        <span class="status-dot connected" id="status-dot"></span>
+        <span id="status-cooldown-text">SAFE</span>
+    </div>
+    <div class="status-pill" id="status-speed">
+        <span id="status-speed-text">15 km/h</span>
+    </div>
+    <div class="status-pill hidden" id="status-route">
+        <span id="status-route-text">--</span>
+    </div>
+    <div class="status-pill" id="status-connection">
+        <span id="status-conn-text">--</span>
+    </div>
+</div>
+
+<!-- ═══ HUD: Coordinate HUD (bottom-right) ═══ -->
+<div id="coord-hud" class="hidden">
+    <span id="coord-hud-text">--</span>
+</div>
+
+<!-- ═══ Keyboard Shortcuts Overlay ═══ -->
+<div id="shortcuts-overlay" class="hidden">
+    <div class="shortcuts-card">
+        <div class="shortcuts-header">
+            <span>KEYBOARD SHORTCUTS</span>
+            <button id="btn-shortcuts-close" class="hud-panel-close">&times;</button>
+        </div>
+        <div class="shortcuts-body">
+            <div class="shortcut-row"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or Arrows<span>Joystick movement</span></div>
+            <div class="shortcut-row"><kbd>Shift</kbd> + Click<span>Add route waypoint</span></div>
+            <div class="shortcut-row"><kbd>T</kbd><span>Toggle teleport mode</span></div>
+            <div class="shortcut-row"><kbd>Esc</kbd><span>Close panel / form</span></div>
+            <div class="shortcut-row"><kbd>?</kbd><span>Show / hide shortcuts</span></div>
+            <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd><span>Zoom in / out</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Multi-device dropdown ═══ -->
+<div id="device-dropdown" class="hidden">
+    <div id="device-dropdown-list"></div>
 </div>
 
 <!-- ═══ Map ═══ -->
@@ -345,7 +417,7 @@
     </button>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 <script src="/static/js/app.js"></script>
 </body>
 </html>
