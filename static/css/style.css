@@ -484,32 +484,76 @@ body {
 .ob-card {
     background: var(--surface-solid);
     border: 1px solid var(--border);
-    border-radius: 20px; padding: 36px;
-    max-width: 420px; width: 90%; text-align: center;
+    border-radius: 20px; padding: 32px;
+    max-width: 460px; width: 92%;
+    text-align: center;
+    position: relative;
 }
-.ob-icon { margin-bottom: 14px; }
-.ob-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.02em; }
-.ob-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; }
 
-.ob-steps {
-    text-align: left; display: flex; flex-direction: column;
-    gap: 12px; margin-bottom: 24px;
-}
-.ob-step {
-    display: flex; align-items: flex-start; gap: 10px;
-    font-size: 12px; line-height: 1.5;
-}
-.ob-step strong { color: var(--text); }
-.ob-muted { color: var(--text-tertiary); font-size: 11px; }
+.ob-page { animation: fadeIn 0.2s ease; }
 
-.ob-step-num {
-    width: 24px; height: 24px; border-radius: 50%;
-    background: var(--blue-bg); color: var(--blue);
-    font-weight: 700; font-size: 11px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; margin-top: 1px;
-}
+.ob-icon { margin-bottom: 12px; }
+.ob-title { font-size: 19px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.02em; }
+.ob-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
 .ob-btn { width: 100%; padding: 10px; font-size: 13px; border-radius: 10px; }
+.ob-btn-skip {
+    width: 100%; margin-top: 8px; padding: 8px;
+    font-size: 11px; border-radius: 8px;
+}
+
+.ob-badge {
+    display: inline-block;
+    padding: 3px 10px; margin-bottom: 12px;
+    background: var(--blue-bg); color: var(--blue);
+    border-radius: 100px; font-size: 10px;
+    font-weight: 600; letter-spacing: 0.03em;
+}
+
+.ob-instructions {
+    text-align: left; display: flex; flex-direction: column;
+    gap: 0; margin-bottom: 16px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px; border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.ob-instr-step {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; font-size: 12px; line-height: 1.5;
+    border-bottom: 1px solid var(--border);
+}
+.ob-instr-step:last-child { border-bottom: none; }
+.ob-instr-step strong { color: var(--text); }
+
+.ob-instr-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--blue-bg); color: var(--blue);
+    font-weight: 700; font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.ob-instr-icon {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.ob-note {
+    display: flex; align-items: flex-start; gap: 8px;
+    text-align: left; font-size: 11px; line-height: 1.5;
+    color: var(--text-tertiary);
+    padding: 10px 12px; margin-bottom: 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+.ob-note svg { flex-shrink: 0; margin-top: 1px; }
+
+.ob-nav {
+    display: flex; gap: 6px; margin-top: 4px;
+}
+.ob-nav .btn { flex: 1; padding: 9px; font-size: 12px; border-radius: 8px; }
 
 .ob-check {
     display: flex; align-items: center; justify-content: center;
@@ -517,6 +561,20 @@ body {
     font-size: 10px; color: var(--text-tertiary); cursor: pointer;
 }
 .ob-check input { accent-color: var(--blue); }
+
+.ob-dots {
+    display: flex; justify-content: center; gap: 6px;
+    margin-top: 16px;
+}
+.ob-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    transition: all 0.2s; cursor: pointer;
+}
+.ob-dot.active {
+    background: var(--blue);
+    width: 18px; border-radius: 3px;
+}
 
 /* ── Setup guide ─────────────────────────────────── */
 

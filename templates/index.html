@@ -12,29 +12,129 @@
 <!-- ═══ Onboarding overlay ═══ -->
 <div id="onboarding">
     <div class="ob-card">
-        <div class="ob-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        </div>
-        <h1 class="ob-title">iPhone Location Spoofer</h1>
-        <p class="ob-sub">Change your iPhone's GPS location in one click.<br>Works with all apps — Find My, Life360, Pokemon Go, and more.</p>
-
-        <div class="ob-steps">
-            <div class="ob-step">
-                <div class="ob-step-num">1</div>
-                <div><strong>Connect your iPhone</strong><br><span class="ob-muted">Plug in via USB and tap "Trust This Computer"</span></div>
+        <!-- Page 1: Welcome -->
+        <div class="ob-page" id="ob-page-1">
+            <div class="ob-icon">
+                <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             </div>
-            <div class="ob-step">
-                <div class="ob-step-num">2</div>
-                <div><strong>Enable Developer Mode</strong><br><span class="ob-muted">Settings &rarr; Privacy & Security &rarr; Developer Mode</span></div>
-            </div>
-            <div class="ob-step">
-                <div class="ob-step-num">3</div>
-                <div><strong>Click anywhere on the map</strong><br><span class="ob-muted">Your iPhone's GPS will instantly move there</span></div>
-            </div>
+            <h1 class="ob-title">iPhone Location Spoofer</h1>
+            <p class="ob-sub">Change your iPhone's GPS location in one click.<br>Works with all apps — Find My, Life360, Pokemon Go, and more.</p>
+            <button class="btn btn-blue ob-btn" onclick="obNext(2)">Set Up Your Device</button>
+            <button class="btn btn-ghost ob-btn-skip" onclick="obSkip()">Skip setup — I know what I'm doing</button>
         </div>
 
-        <button id="ob-start" class="btn btn-blue ob-btn">Get Started</button>
-        <label class="ob-check"><input type="checkbox" id="ob-dismiss" checked /> Don't show this again</label>
+        <!-- Page 2: Developer Mode -->
+        <div class="ob-page hidden" id="ob-page-2">
+            <div class="ob-badge">Step 1 of 3</div>
+            <h2 class="ob-title">Enable Developer Mode</h2>
+            <p class="ob-sub">This is required for your iPhone to accept simulated locations. It's a built-in Apple feature — safe to enable.</p>
+            <div class="ob-instructions">
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">1</span>
+                    <span>Open <strong>Settings</strong> on your iPhone</span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">2</span>
+                    <span>Go to <strong>Privacy & Security</strong></span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">3</span>
+                    <span>Scroll down and tap <strong>Developer Mode</strong></span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">4</span>
+                    <span>Toggle it <strong>ON</strong> and restart your iPhone when prompted</span>
+                </div>
+            </div>
+            <div class="ob-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span>Don't see Developer Mode? Make sure your iPhone is running iOS 16 or later.</span>
+            </div>
+            <div class="ob-nav">
+                <button class="btn btn-ghost" onclick="obNext(1)">Back</button>
+                <button class="btn btn-blue" onclick="obNext(3)">Next</button>
+            </div>
+        </div>
+
+        <!-- Page 3: Connect & Trust -->
+        <div class="ob-page hidden" id="ob-page-3">
+            <div class="ob-badge">Step 2 of 3</div>
+            <h2 class="ob-title">Connect & Trust</h2>
+            <p class="ob-sub">Plug your iPhone into your computer with a USB cable.</p>
+            <div class="ob-instructions">
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">1</span>
+                    <span>Connect your iPhone via <strong>USB cable</strong> (Lightning or USB-C)</span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">2</span>
+                    <span><strong>Unlock</strong> your iPhone</span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">3</span>
+                    <span>Tap <strong>"Trust"</strong> when the "Trust This Computer?" dialog appears</span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-num">4</span>
+                    <span>Enter your iPhone <strong>passcode</strong> to confirm</span>
+                </div>
+            </div>
+            <div class="ob-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span>No dialog? Unplug and replug the cable, or go to Settings &rarr; General &rarr; Transfer or Reset &rarr; Reset Location & Privacy.</span>
+            </div>
+            <div class="ob-nav">
+                <button class="btn btn-ghost" onclick="obNext(2)">Back</button>
+                <button class="btn btn-blue" onclick="obNext(4)">Next</button>
+            </div>
+        </div>
+
+        <!-- Page 4: Ready -->
+        <div class="ob-page hidden" id="ob-page-4">
+            <div class="ob-badge">Step 3 of 3</div>
+            <h2 class="ob-title">You're All Set</h2>
+            <p class="ob-sub">Here's how to use the app:</p>
+            <div class="ob-instructions">
+                <div class="ob-instr-step">
+                    <span class="ob-instr-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </span>
+                    <span><strong>Click the map</strong> to place a marker, then press Set Location</span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </span>
+                    <span>Turn on <strong>Teleport mode</strong> to set GPS with a single click</span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <span><strong>Search</strong> any address or place name in the top bar</span>
+                </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </span>
+                    <span><strong>Shift+click</strong> multiple points to simulate movement along a route</span>
+                </div>
+            </div>
+            <div class="ob-note" style="border-color: rgba(63,185,80,0.2); color: var(--green);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>iOS 18+: Keep your phone plugged in while spoofing. The location resets when unplugged.</span>
+            </div>
+            <button class="btn btn-blue ob-btn" onclick="obDone()">Start Using the App</button>
+            <label class="ob-check"><input type="checkbox" id="ob-dismiss" checked /> Don't show this again</label>
+        </div>
+
+        <!-- Page dots -->
+        <div class="ob-dots">
+            <span class="ob-dot active" data-page="1"></span>
+            <span class="ob-dot" data-page="2"></span>
+            <span class="ob-dot" data-page="3"></span>
+            <span class="ob-dot" data-page="4"></span>
+        </div>
     </div>
 </div>
 

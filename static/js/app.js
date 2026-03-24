@@ -42,11 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         $("onboarding").classList.add("hidden");
     }
 
-    $("ob-start").addEventListener("click", () => {
-        if ($("ob-dismiss").checked) localStorage.setItem("ob_done", "1");
-        $("onboarding").classList.add("hidden");
-    });
-
     // Load default location FIRST
     let startLat = 40.7128, startLon = -74.006;
     try {
@@ -116,7 +111,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function $(id) { return document.getElementById(id); }
 
-// ── Onboarding handled inline above ─────────────────────────
+// ── Onboarding ───────────────────────────────────────────────
+let obPage = 1;
+function obNext(page) {
+    document.getElementById(`ob-page-${obPage}`).classList.add("hidden");
+    document.getElementById(`ob-page-${page}`).classList.remove("hidden");
+    obPage = page;
+    document.querySelectorAll(".ob-dot").forEach((d, i) =>
+        d.classList.toggle("active", i + 1 === page)
+    );
+}
+function obSkip() {
+    localStorage.setItem("ob_done", "1");
+    document.getElementById("onboarding").classList.add("hidden");
+}
+function obDone() {
+    if (document.getElementById("ob-dismiss").checked) localStorage.setItem("ob_done", "1");
+    document.getElementById("onboarding").classList.add("hidden");
+}
 
 // ── Toasts ───────────────────────────────────────────────────
 function toast(msg, type = "success") {

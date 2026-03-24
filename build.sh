@@ -114,6 +114,8 @@ cat > "$APP_DIR/Contents/Info.plist" << PLIST
     <string>$APP_NAME</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.15</string>
+    <key>CFBundleIconFile</key>
+    <string>icon.icns</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>LSUIElement</key>
