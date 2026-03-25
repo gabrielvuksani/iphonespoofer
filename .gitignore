@@ -25,5 +25,10 @@ saved_locations.json
 *.swp
 icon.icns
 
-# Superpowers brainstorm
+# AI tools
+.claude/
 .superpowers/
+CLAUDE.md
+claude.md
+.claude.md
+docs/superpowers/
