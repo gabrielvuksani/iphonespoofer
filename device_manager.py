@@ -1,4 +1,3 @@
-import subprocess
 import asyncio
 import atexit
 import threading
@@ -34,7 +33,6 @@ class AsyncBridge:
 
 class DeviceManager:
     def __init__(self):
-        self.tunneld_process = None
         self.rsd = None
         self.provider = None
         self.simulator = None
@@ -45,9 +43,67 @@ class DeviceManager:
             "udid": None,
             "model": None,
             "connected": False,
-            "connection_type": None,  # "USB" or "WiFi"
+            "connection_type": None,
         }
+        self._auto_reconnect = False
+        self._reconnect_thread = None
+        self._reconnect_callback = None  # Called after successful reconnect
         atexit.register(self.shutdown)
+
+    # ── Auto-reconnect ─────────────────────────────────────
+
+    def enable_auto_reconnect(self, callback=None):
+        """Start background auto-reconnect. callback(device_info) is called on reconnect."""
+        self._auto_reconnect = True
+        self._reconnect_callback = callback
+        if not self._reconnect_thread or not self._reconnect_thread.is_alive():
+            self._reconnect_thread = threading.Thread(target=self._reconnect_loop, daemon=True)
+            self._reconnect_thread.start()
+        return {"status": "Auto-reconnect enabled"}
+
+    def disable_auto_reconnect(self):
+        self._auto_reconnect = False
+        if self._reconnect_thread and self._reconnect_thread.is_alive():
+            self._reconnect_thread.join(timeout=5)
+        self._reconnect_thread = None
+        return {"status": "Auto-reconnect disabled"}
+
+    def _reconnect_loop(self):
+        """Periodically check connection and reconnect if needed."""
+        while self._auto_reconnect:
+            if self.device_info.get("connected"):
+                # Verify connection is still alive
+                if not self._is_connection_alive():
+                    print("[!] Device disconnected, attempting auto-reconnect...")
+                    self.device_info["connected"] = False
+                    try:
+                        prefer_wifi = self.device_info.get("connection_type") == "WiFi"
+                        self.disconnect()
+                        info = self.connect(prefer_wifi=prefer_wifi, retries=3, delay=2)
+                        print(f"[+] Auto-reconnected ({info.get('connection_type', 'USB')})")
+                        if self._reconnect_callback:
+                            try:
+                                self._reconnect_callback(info)
+                            except Exception:
+                                pass
+                    except Exception as e:
+                        print(f"[!] Auto-reconnect failed: {e}")
+            time.sleep(10)
+
+    def _is_connection_alive(self):
+        """Quick check if the current connection is still responsive."""
+        if not self.simulator:
+            return False
+        try:
+            # Attempt a lightweight operation
+            self.bridge.run(self.simulator.set(0, 0))
+            # Clear immediately to avoid side effects
+            self.bridge.run(self.simulator.clear())
+            return True
+        except Exception:
+            return False
+
+    # ── Tunnel discovery ───────────────────────────────────
 
     def _get_tunnel_info(self, prefer_wifi=False, retries=15, delay=2):
         """Poll tunneld HTTP API. Can prefer WiFi or USB connections."""
@@ -66,7 +122,6 @@ class DeviceManager:
                     time.sleep(delay)
                     continue
 
-                # Collect all available connections
                 usb_connections = []
                 wifi_connections = []
                 for device_udid, entries in data.items():
@@ -78,7 +133,6 @@ class DeviceManager:
                         else:
                             wifi_connections.append(info)
 
-                # Pick based on preference
                 if prefer_wifi and wifi_connections:
                     addr, port, udid, iface = wifi_connections[0]
                     conn_type = "WiFi"
@@ -131,6 +185,24 @@ class DeviceManager:
             return connections
         except Exception:
             return []
+
+    def get_all_devices(self):
+        """Return unique device UDIDs with their available connection types."""
+        try:
+            resp = http_requests.get(f"http://127.0.0.1:{TUNNELD_PORT}", timeout=3)
+            data = resp.json()
+            devices = {}
+            for udid, entries in data.items():
+                types = set()
+                for entry in entries:
+                    iface = entry.get("interface", "")
+                    types.add("USB" if "USB" in iface else "WiFi")
+                devices[udid] = {"udid": udid, "connection_types": sorted(types)}
+            return list(devices.values())
+        except Exception:
+            return []
+
+    # ── Connection management ──────────────────────────────
 
     async def _init_connection(self, tunnel_address, tunnel_port):
         self.rsd = RemoteServiceDiscoveryService((tunnel_address, tunnel_port))
@@ -192,7 +264,7 @@ class DeviceManager:
         self.device_info["connection_type"] = None
 
     def reconnect(self, prefer_wifi=False, retries=15, delay=2):
-        """Disconnect current and reconnect (e.g. switching USB → WiFi)."""
+        """Disconnect current and reconnect."""
         self.disconnect()
         return self.connect(prefer_wifi=prefer_wifi, retries=retries, delay=delay)
 
@@ -200,17 +272,18 @@ class DeviceManager:
         return dict(self.device_info)
 
     def shutdown(self):
+        self._auto_reconnect = False
         if self.provider:
             try:
                 self.bridge.run(self.provider.close())
             except Exception:
                 pass
-
-        if self.tunneld_process and self.tunneld_process.poll() is None:
-            print("\n[*] Shutting down tunneld...")
-            self.tunneld_process.terminate()
+            self.provider = None
+            self.simulator = None
+        if self.rsd:
             try:
-                self.tunneld_process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                self.tunneld_process.kill()
+                self.bridge.run(self.rsd.close())
+            except Exception:
+                pass
+            self.rsd = None
         self.device_info["connected"] = False

@@ -50,6 +50,7 @@ def start_backend():
     try:
         device_mgr.connect(retries=3)
         app_module.loc_svc = LocationService(device_mgr.simulator, device_mgr.bridge)
+        app_module._start_schedule_checker()
         print("[+] Device connected")
     except Exception:
         print("[*] No device yet — connect from the UI")
@@ -67,6 +68,16 @@ def wait_for_server(port, timeout=30):
         except (ConnectionRefusedError, OSError):
             time.sleep(0.5)
     return False
+
+
+def _cleanup():
+    """Stop all background threads and disconnect device on exit."""
+    print("[*] Cleaning up...")
+    if app_module.loc_svc:
+        app_module.loc_svc.stop_route()
+        app_module.loc_svc._stop_keepalive()
+    if app_module.device_mgr:
+        app_module.device_mgr.shutdown()
 
 
 def main():
@@ -104,6 +115,8 @@ def main():
                 time.sleep(1)
         except KeyboardInterrupt:
             pass
+    finally:
+        _cleanup()
 
 
 if __name__ == "__main__":

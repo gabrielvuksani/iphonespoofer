@@ -24,3 +24,6 @@ saved_locations.json
 .vscode/
 *.swp
 icon.icns
+
+# Superpowers brainstorm
+.superpowers/

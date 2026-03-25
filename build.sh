@@ -6,7 +6,7 @@ cd "$SCRIPT_DIR"
 
 APP_NAME="iPhone Spoofer"
 BUNDLE_ID="com.iphonespoofer.app"
-VERSION="1.0.0"
+VERSION="1.4.0"
 VENV_DIR="$SCRIPT_DIR/.venv"
 DIST_DIR="$SCRIPT_DIR/dist"
 APP_DIR="$DIST_DIR/$APP_NAME.app"

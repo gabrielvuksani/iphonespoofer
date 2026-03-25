@@ -7,6 +7,7 @@ Handles starting pymobiledevice3 tunneld with admin/root privileges.
 
 import os
 import platform
+import shlex
 import subprocess
 import sys
 import time
@@ -61,10 +62,15 @@ def start_tunneld_with_admin():
 
 
 def _start_macos(exe, args, log):
-    cmd_str = f'"{exe}" {" ".join(args)}'
+    parts = [shlex.quote(exe)] + [shlex.quote(a) for a in args]
+    cmd_str = " ".join(parts)
+    log_escaped = shlex.quote(log)
+    # Escape backslashes and double-quotes for AppleScript string literal
+    shell_cmd = f"nohup {cmd_str} > {log_escaped} 2>&1 &"
+    shell_cmd_escaped = shell_cmd.replace("\\", "\\\\").replace('"', '\\"')
     script = (
         f'do shell script '
-        f'"nohup {cmd_str} > {log} 2>&1 &"'
+        f'"{shell_cmd_escaped}"'
         f' with administrator privileges'
     )
     try:
@@ -82,8 +88,9 @@ def _start_windows(exe, args, log):
     """Use PowerShell to elevate via UAC prompt."""
     full_args = " ".join(f'"{a}"' for a in args)
     # Write a small batch wrapper that redirects output to log
-    wrapper = os.path.join(tempfile.gettempdir(), "iphonespoofer_tunnel.bat")
-    with open(wrapper, "w") as f:
+    # Use mkstemp to avoid predictable temp file path (TOCTOU mitigation)
+    fd, wrapper = tempfile.mkstemp(suffix=".bat", prefix="iphonespoofer_")
+    with os.fdopen(fd, "w") as f:
         f.write(f'@echo off\n"{exe}" {full_args} > "{log}" 2>&1\n')
 
     try:
