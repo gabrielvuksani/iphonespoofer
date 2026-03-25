@@ -25,6 +25,10 @@ saved_locations.json
 *.swp
 icon.icns
 
+# Secrets
+.env
+.env.*
+
 # AI tools
 .claude/
 .superpowers/
