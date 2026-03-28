@@ -718,8 +718,14 @@ body {
     background: var(--green);
     box-shadow: 0 0 6px rgba(57, 255, 20, 0.4);
 }
+.status-dot.warning {
+    background: var(--amber);
+    box-shadow: 0 0 6px rgba(255, 224, 49, 0.4);
+}
 
 #status-cooldown-text { font-weight: 600; }
+#status-stealth { cursor: pointer; }
+#status-stealth:hover { border-color: rgba(139, 92, 246, 0.25); }
 
 /* ── Coordinate HUD ─────────────────────────────── */
 
@@ -1151,6 +1157,46 @@ kbd {
     font-size: 10px; color: var(--text-tertiary);
     margin-top: 6px; font-style: italic;
 }
+
+/* ── Loading button state ────────────────────────── */
+
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+.btn-loading::after {
+    content: '';
+    position: absolute; right: 8px; top: 50%;
+    width: 10px; height: 10px;
+    margin-top: -5px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: btnSpin 0.6s linear infinite;
+}
+@keyframes btnSpin { to { transform: rotate(360deg); } }
+
+/* ── Custom scrollbar ────────────────────────────── */
+
+.hud-panel-body::-webkit-scrollbar,
+.tips-body::-webkit-scrollbar { width: 4px; }
+.hud-panel-body::-webkit-scrollbar-track,
+.tips-body::-webkit-scrollbar-track { background: transparent; }
+.hud-panel-body::-webkit-scrollbar-thumb,
+.tips-body::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.2);
+    border-radius: 4px;
+}
+.hud-panel-body::-webkit-scrollbar-thumb:hover,
+.tips-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.4);
+}
+
+/* ── Smooth panel collapse ───────────────────────── */
+
+.hud-panel { transition: border-color 0.3s, opacity 0.3s; }
+.hud-panel.collapsed { opacity: 0.85; }
 
 /* ── Light theme ─────────────────────────────────── */
 

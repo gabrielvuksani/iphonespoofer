@@ -80,6 +80,10 @@
                     <span class="ob-instr-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
                     <span><strong>Shift+click</strong> multiple points to simulate movement along a route</span>
                 </div>
+                <div class="ob-instr-step">
+                    <span class="ob-instr-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                    <span>Press <strong>G</strong> to open the anti-detection guide &mdash; stealth tips and app risk levels</span>
+                </div>
             </div>
             <div class="ob-note" style="border-color: rgba(57,255,20,0.2); color: var(--green);">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -381,6 +385,10 @@
     <div class="status-pill hidden" id="status-route">
         <span id="status-route-text">--</span>
     </div>
+    <div class="status-pill" id="status-stealth">
+        <span class="status-dot connected" id="status-stealth-dot"></span>
+        <span id="status-stealth-text">STEALTH</span>
+    </div>
     <div class="status-pill" id="status-connection">
         <span id="status-conn-text">--</span>
     </div>
@@ -402,6 +410,7 @@
             <div class="shortcut-row"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or Arrows<span>Joystick movement</span></div>
             <div class="shortcut-row"><kbd>Shift</kbd> + Click<span>Add route waypoint</span></div>
             <div class="shortcut-row"><kbd>T</kbd><span>Toggle teleport mode</span></div>
+            <div class="shortcut-row"><kbd>G</kbd><span>Anti-detection guide</span></div>
             <div class="shortcut-row"><kbd>Esc</kbd><span>Close panel / form</span></div>
             <div class="shortcut-row"><kbd>?</kbd><span>Show / hide shortcuts</span></div>
             <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd><span>Zoom in / out</span></div>

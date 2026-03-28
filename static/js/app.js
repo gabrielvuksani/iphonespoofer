@@ -185,6 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     $("tips-overlay").addEventListener("click", e => { if (e.target === $("tips-overlay")) toggleTips(); });
     $("stealth-banner-close").addEventListener("click", dismissStealthBanner);
     $("stealth-banner-tip").addEventListener("click", () => { dismissStealthBanner(); toggleTips(); });
+    $("status-stealth")?.addEventListener("click", toggleTips);
 
     // Device dropdown & connect buttons
     $("device-badge").addEventListener("click", toggleDeviceDropdown);
@@ -222,7 +223,7 @@ function obSkip() { localStorage.setItem("ob_done", "1"); $("onboarding").classL
 function obDone() { if ($("ob-dismiss").checked) localStorage.setItem("ob_done", "1"); $("onboarding").classList.add("hidden"); }
 
 // ── Toasts ──────────────────────────────────────────────────
-function toast(msg, type = "success") { const el = document.createElement("div"); el.className = "toast " + type; el.textContent = msg; $("toasts").appendChild(el); setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 300); }, 3000); }
+function toast(msg, type = "success") { const dur = type === "warning" ? 5000 : 3000; const el = document.createElement("div"); el.className = "toast " + type; el.textContent = msg; $("toasts").appendChild(el); setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 300); }, dur); }
 
 // ── Theme ───────────────────────────────────────────────────
 function toggleTheme() { lightTheme = !lightTheme; document.body.classList.toggle("light", lightTheme); localStorage.setItem("theme", lightTheme ? "light" : "dark"); const t = lightTheme ? TILES.light : TILES.dark; darkTiles = !lightTheme; map.removeLayer(tileLayer); tileLayer = L.tileLayer(t.url, { attribution: t.attr, maxZoom: 19, subdomains: "abcd" }).addTo(map); }
@@ -323,6 +324,7 @@ async function doSearch(q) {
 
 // ── Device polling ──────────────────────────────────────────
 let wasConnected = false;
+let _autoConnectAttempted = false;
 async function pollDevice() {
     try {
         const r = await fetch("/api/device"); const d = await r.json(); const dot = $("device-dot");
@@ -338,16 +340,31 @@ async function pollDevice() {
             dot.classList.remove("connected"); $("device-label").textContent = "No device";
             $("device-info-compact")?.classList.add("hidden"); $("setup-guide")?.classList.remove("hidden");
             if ($("status-conn-text")) $("status-conn-text").textContent = "--"; wasConnected = false;
+            // Auto-connect on first poll if tunnel is running
+            if (!_autoConnectAttempted) { _autoConnectAttempted = true; autoConnect(); }
         }
+    } catch (e) {}
+}
+
+async function autoConnect() {
+    try {
+        const r = await fetch("/api/tunnel/status"); const d = await r.json();
+        if (!d.running) return;
+        if ($("connect-status")) $("connect-status").textContent = "Auto-connecting...";
+        await connectDevice(false);
     } catch (e) {}
 }
 
 // ── Connection ──────────────────────────────────────────────
 async function connectDevice(wifi = false) {
     const status = $("connect-status"), btnU = $("btn-connect"), btnW = $("btn-connect-wifi");
-    if (btnU) btnU.disabled = true; if (btnW) btnW.disabled = true;
-    if (status) status.textContent = wifi ? "Connecting via WiFi..." : "Connecting via USB...";
-    try { const r = await fetch("/api/device/connect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ wifi }) }); const d = await r.json(); if (r.ok) { toast("Connected via " + d.connection_type); if (status) status.textContent = ""; pollDevice(); } else { toast(d.error || "Failed", "error"); if (status) status.textContent = d.error || "Failed"; } } catch (e) { toast("Connection error", "error"); if (status) status.textContent = "Error"; } finally { if (btnU) btnU.disabled = false; if (btnW) btnW.disabled = false; }
+    const origU = btnU?.textContent, origW = btnW?.textContent;
+    if (btnU) { btnU.disabled = true; btnU.classList.add("btn-loading"); }
+    if (btnW) { btnW.disabled = true; btnW.classList.add("btn-loading"); }
+    if (wifi && btnW) btnW.textContent = "Connecting...";
+    else if (btnU) btnU.textContent = "Connecting...";
+    if (status) status.textContent = wifi ? "Scanning for WiFi device..." : "Scanning for USB device...";
+    try { const r = await fetch("/api/device/connect", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ wifi }) }); const d = await r.json(); if (r.ok) { toast("Connected via " + d.connection_type); if (status) status.textContent = ""; pollDevice(); } else { toast(d.error || "Failed", "error"); if (status) status.textContent = d.error || "Failed"; } } catch (e) { toast("Connection error", "error"); if (status) status.textContent = "Error"; } finally { if (btnU) { btnU.disabled = false; btnU.classList.remove("btn-loading"); btnU.textContent = origU; } if (btnW) { btnW.disabled = false; btnW.classList.remove("btn-loading"); btnW.textContent = origW; } }
 }
 
 // ── Multi-device ────────────────────────────────────────────
@@ -431,7 +448,8 @@ function onKeyDown(e) {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
     if (e.key === "?" || (e.key === "/" && e.shiftKey)) { e.preventDefault(); toggleShortcuts(); return; }
     if (e.key.toLowerCase() === "t") { e.preventDefault(); toggleTeleport(); return; }
-    if (e.key === "Escape") { document.querySelectorAll(".inline-form:not(.hidden)").forEach(f => f.classList.add("hidden")); if (!$("shortcuts-overlay").classList.contains("hidden")) toggleShortcuts(); return; }
+    if (e.key.toLowerCase() === "g") { e.preventDefault(); toggleTips(); return; }
+    if (e.key === "Escape") { document.querySelectorAll(".inline-form:not(.hidden)").forEach(f => f.classList.add("hidden")); if (!$("shortcuts-overlay").classList.contains("hidden")) toggleShortcuts(); if (!$("tips-overlay").classList.contains("hidden")) toggleTips(); return; }
     if (e.key === "+" || e.key === "=") { map.zoomIn(); return; }
     if (e.key === "-") { map.zoomOut(); return; }
     const dir = _keyMap[e.key.toLowerCase()]; if (!dir) return; e.preventDefault(); _activeKeys.add(dir); const combined = _combineDirections(); if (combined) joystickMove(combined);
@@ -464,18 +482,31 @@ function updateStatusBar() { const speed = parseInt($("speed-input").value, 10) 
 let _stealthDismissed = false;
 
 async function checkStealth() {
-    if (_stealthDismissed) return;
     try {
         const r = await fetch("/api/stealth/check");
         const d = await r.json();
         const banner = $("stealth-banner");
+        const stealthPill = $("status-stealth");
+        const stealthText = $("status-stealth-text");
+        const stealthDot = $("status-stealth-dot");
+        // Update status bar pill
+        if (stealthPill) {
+            if (!d.warnings || !d.warnings.length) {
+                stealthText.textContent = "STEALTH"; stealthDot.className = "status-dot connected";
+            } else {
+                const hasHigh = d.warnings.some(w => w.severity === "high");
+                stealthText.textContent = hasHigh ? "EXPOSED" : "RISK";
+                stealthDot.className = "status-dot" + (hasHigh ? "" : " warning");
+            }
+        }
+        // Banner
+        if (_stealthDismissed) return;
         if (!d.warnings || !d.warnings.length) { banner.classList.add("hidden"); return; }
-        // Show highest severity warning
         const sorted = d.warnings.sort((a, b) => (a.severity === "high" ? -1 : 1));
         $("stealth-banner-text").textContent = sorted[0].message;
         banner.classList.remove("hidden");
         banner.className = "stealth-banner-" + sorted[0].severity;
-        // Also check device timezone client-side
+        // Client-side timezone check
         if (d.spoof_location) {
             const deviceOffsetH = -new Date().getTimezoneOffset() / 60;
             const targetOffsetH = Math.round(d.spoof_location.lon / 15);
