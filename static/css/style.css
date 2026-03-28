@@ -998,6 +998,160 @@ kbd {
     box-shadow: 0 0 6px var(--accent-glow);
 }
 
+/* ── Stealth banner ──────────────────────────────── */
+
+#stealth-banner {
+    position: fixed;
+    top: var(--topbar-h);
+    left: 0; right: 0;
+    z-index: 1500;
+    padding: 5px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    backdrop-filter: blur(20px);
+    animation: toastIn 0.25s ease;
+}
+#stealth-banner.hidden { display: none; }
+
+.stealth-banner-high {
+    background: rgba(255, 51, 102, 0.08);
+    border-bottom: 1px solid rgba(255, 51, 102, 0.2);
+    color: var(--red);
+}
+.stealth-banner-medium {
+    background: rgba(255, 224, 49, 0.08);
+    border-bottom: 1px solid rgba(255, 224, 49, 0.2);
+    color: var(--amber);
+}
+
+.stealth-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stealth-link {
+    background: none; border: none;
+    color: inherit; font: inherit;
+    text-decoration: underline;
+    cursor: pointer; opacity: 0.8;
+    padding: 0;
+}
+.stealth-link:hover { opacity: 1; }
+
+.stealth-close {
+    background: none; border: none;
+    color: inherit; font-size: 16px;
+    cursor: pointer; opacity: 0.5;
+    padding: 0 4px; line-height: 1;
+}
+.stealth-close:hover { opacity: 1; }
+
+/* ── Warning toast type ─────────────────────────── */
+
+.toast.warning { border-color: rgba(255, 224, 49, 0.25); }
+.toast.warning::before {
+    content: ''; display: inline-block;
+    width: 5px; height: 5px;
+    background: var(--amber); border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 6px rgba(255,224,49,0.4);
+}
+
+/* ── Anti-detection tips overlay ─────────────────── */
+
+#tips-overlay {
+    position: fixed; inset: 0; z-index: 5000;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+#tips-overlay.hidden { display: none; }
+
+.tips-card {
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 420px; max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.tips-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    font-family: var(--mono);
+}
+.tips-header .hud-panel-close { margin-left: auto; }
+
+.tips-body {
+    padding: 10px 14px 14px;
+}
+
+.tips-section {
+    margin-bottom: 12px;
+}
+.tips-section:last-child { margin-bottom: 0; }
+
+.tips-section-title {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+}
+.tips-section-title.tips-green { color: var(--green); }
+.tips-section-title.tips-amber { color: var(--amber); }
+.tips-section-title.tips-red { color: var(--red); }
+
+.tips-item {
+    display: flex; align-items: baseline; gap: 6px;
+    font-size: 11px; color: var(--text-secondary);
+    padding: 2px 0;
+    line-height: 1.5;
+}
+.tips-item strong { color: var(--text); font-weight: 600; }
+
+.tips-check {
+    color: var(--green);
+    font-weight: 700; font-size: 12px;
+    flex-shrink: 0; width: 14px; text-align: center;
+}
+.tips-x {
+    color: var(--red);
+    font-weight: 700; font-size: 14px;
+    flex-shrink: 0; width: 14px; text-align: center;
+}
+.tips-num {
+    color: var(--accent);
+    font-weight: 700; font-size: 10px;
+    flex-shrink: 0; width: 14px; text-align: center;
+    font-family: var(--mono);
+}
+
+.tips-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%; flex-shrink: 0;
+    margin-top: 4px;
+}
+.tips-dot-green { background: var(--green); box-shadow: 0 0 4px rgba(57,255,20,0.4); }
+.tips-dot-amber { background: var(--amber); box-shadow: 0 0 4px rgba(255,224,49,0.4); }
+.tips-dot-red { background: var(--red); box-shadow: 0 0 4px rgba(255,51,102,0.4); }
+
+.tips-hint {
+    font-size: 10px; color: var(--text-tertiary);
+    margin-top: 6px; font-style: italic;
+}
+
 /* ── Light theme ─────────────────────────────────── */
 
 body.light {

@@ -178,6 +178,97 @@ def api_default_location():
     return jsonify({"lat": 40.7128, "lon": -74.006, "city": "New York", "country": "US"})
 
 
+# ── Stealth / Anti-detection API ──────────────────────────────
+
+_ip_cache = {"data": None, "ts": 0}
+
+
+def _get_ip_location():
+    """Get the user's real IP geolocation (cached 5 min). Returns dict or None."""
+    global _ip_cache
+    if _ip_cache["data"] and time.time() - _ip_cache["ts"] < 300:
+        return _ip_cache["data"]
+
+    result = None
+    try:
+        r = http_requests.get("https://ipinfo.io/json", timeout=3,
+                              headers={"User-Agent": "iPhoneSpoofer/1.0"})
+        data = r.json()
+        loc = data.get("loc", "")
+        if "," in loc:
+            lat, lon = loc.split(",")
+            result = {"lat": float(lat), "lon": float(lon),
+                      "city": data.get("city", ""), "country": data.get("country", ""),
+                      "timezone": data.get("timezone", "")}
+    except Exception:
+        pass
+
+    if result is None:
+        try:
+            r = http_requests.get("https://ipwho.is/", timeout=3)
+            data = r.json()
+            if data.get("success") and "latitude" in data:
+                result = {"lat": data["latitude"], "lon": data["longitude"],
+                          "city": data.get("city", ""), "country": data.get("country_code", ""),
+                          "timezone": data.get("timezone", {}).get("id", "")}
+        except Exception:
+            pass
+
+    if result:
+        _ip_cache = {"data": result, "ts": time.time()}
+    return result
+
+
+@app.route("/api/stealth/check")
+def api_stealth_check():
+    """Check for IP vs GPS mismatch and timezone warnings."""
+    result = {"ip_mismatch": False, "ip_location": None,
+              "spoof_location": None, "distance_km": None, "warnings": []}
+
+    if loc_svc is None or loc_svc.get_current() is None:
+        return jsonify(result)
+
+    spoof = loc_svc.get_current()
+    ip_loc = _get_ip_location()
+    if ip_loc is None:
+        return jsonify(result)
+
+    result["ip_location"] = ip_loc
+    result["spoof_location"] = spoof
+
+    dist = LocationService._haversine(
+        ip_loc["lat"], ip_loc["lon"], spoof["lat"], spoof["lon"]
+    ) / 1000
+    result["distance_km"] = round(dist, 1)
+
+    # IP mismatch: >100 km apart
+    if dist > 100:
+        severity = "high" if dist > 500 else "medium"
+        result["ip_mismatch"] = True
+        result["warnings"].append({
+            "type": "ip_mismatch",
+            "severity": severity,
+            "message": (f"Your IP is in {ip_loc.get('city', '?')}, "
+                        f"{ip_loc.get('country', '?')} but GPS is "
+                        f"{round(dist)} km away. Use a VPN to match."),
+        })
+
+    # Timezone: estimate UTC offset from longitude
+    spoof_utc = round(spoof["lon"] / 15)
+    ip_utc = round(ip_loc["lon"] / 15)
+    if abs(spoof_utc - ip_utc) > 1:
+        sign = "+" if spoof_utc >= 0 else ""
+        result["warnings"].append({
+            "type": "timezone_mismatch",
+            "severity": "medium",
+            "message": (f"Device timezone may not match spoofed location "
+                        f"(~UTC{sign}{spoof_utc}). Change in iOS Settings "
+                        f"> General > Date & Time."),
+        })
+
+    return jsonify(result)
+
+
 # ── Location API ───────────────────────────────────────────────
 
 @app.route("/api/location/set", methods=["POST"])
@@ -729,7 +820,7 @@ def api_docs():
                 "methods": sorted(rule.methods - {"OPTIONS", "HEAD"}),
             })
     endpoints.sort(key=lambda e: e["path"])
-    return jsonify({"endpoints": endpoints, "version": "1.4.0"})
+    return jsonify({"endpoints": endpoints, "version": "1.5.0"})
 
 
 # ── CLI Main (for start.sh usage) ─────────────────────────────

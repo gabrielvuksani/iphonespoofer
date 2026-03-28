@@ -162,7 +162,14 @@ class LocationService:
         while self._keepalive_active:
             try:
                 if self.current_location:
-                    self._sim_set(self.current_location["lat"], self.current_location["lon"])
+                    lat = self.current_location["lat"]
+                    lon = self.current_location["lon"]
+                    # Natural GPS jitter: 1-5m random drift per tick
+                    jitter_m = random.uniform(1, 5)
+                    angle = random.uniform(0, 2 * math.pi)
+                    dlat = (jitter_m / 111320) * math.cos(angle)
+                    dlon = (jitter_m / (111320 * max(math.cos(math.radians(lat)), 0.01))) * math.sin(angle)
+                    self._sim_set(lat + dlat, lon + dlon)
                     fail_count = 0
             except Exception:
                 fail_count += 1

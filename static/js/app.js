@@ -179,8 +179,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     $("btn-shortcuts-close").addEventListener("click", toggleShortcuts);
     $("shortcuts-overlay").addEventListener("click", e => { if (e.target === $("shortcuts-overlay")) toggleShortcuts(); });
 
-    // Device dropdown
+    // Stealth / Anti-detection
+    $("btn-stealth").addEventListener("click", toggleTips);
+    $("btn-tips-close").addEventListener("click", toggleTips);
+    $("tips-overlay").addEventListener("click", e => { if (e.target === $("tips-overlay")) toggleTips(); });
+    $("stealth-banner-close").addEventListener("click", dismissStealthBanner);
+    $("stealth-banner-tip").addEventListener("click", () => { dismissStealthBanner(); toggleTips(); });
+
+    // Device dropdown & connect buttons
     $("device-badge").addEventListener("click", toggleDeviceDropdown);
+    $("btn-connect").addEventListener("click", () => connectDevice(false));
+    $("btn-connect-wifi").addEventListener("click", () => connectDevice(true));
 
     // Follow mode
     $("follow-mode")?.addEventListener("change", e => { followMode = e.target.checked; });
@@ -244,7 +253,7 @@ function toggleTiles() { darkTiles = !darkTiles; const t = darkTiles ? TILES.dar
 // ── Teleport to ─────────────────────────────────────────────
 async function teleportTo(lat, lon) {
     storePreviousLocation();
-    try { const r = await fetch("/api/location/set", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat, lon }) }); if (r.ok) { toast("Teleported to " + lat.toFixed(4) + ", " + lon.toFixed(4)); addToRecent(lat, lon); } else { const d = await r.json(); toast(d.error || "Failed", "error"); } } catch (e) { toast("Connection error", "error"); }
+    try { const r = await fetch("/api/location/set", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat, lon }) }); if (r.ok) { toast("Teleported to " + lat.toFixed(4) + ", " + lon.toFixed(4)); addToRecent(lat, lon); _stealthDismissed = false; checkStealth(); } else { const d = await r.json(); toast(d.error || "Failed", "error"); } } catch (e) { toast("Connection error", "error"); }
 }
 
 // ── Location set/clear ──────────────────────────────────────
@@ -252,7 +261,7 @@ async function setLocation() {
     const lat = parseFloat($("lat-input").value), lon = parseFloat($("lon-input").value);
     if (isNaN(lat) || isNaN(lon)) return toast("Place a marker on the map first", "error");
     storePreviousLocation();
-    try { const r = await fetch("/api/location/set", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat, lon }) }); const d = await r.json(); if (r.ok) { toast("Location set: " + lat.toFixed(4) + ", " + lon.toFixed(4)); placeMarker(lat, lon); addToRecent(lat, lon); } else toast(d.error || "Failed", "error"); } catch (e) { toast("Connection error", "error"); }
+    try { const r = await fetch("/api/location/set", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat, lon }) }); const d = await r.json(); if (r.ok) { toast("Location set: " + lat.toFixed(4) + ", " + lon.toFixed(4)); placeMarker(lat, lon); addToRecent(lat, lon); _stealthDismissed = false; checkStealth(); } else toast(d.error || "Failed", "error"); } catch (e) { toast("Connection error", "error"); }
 }
 
 async function clearLocation() {
@@ -450,6 +459,35 @@ async function pollCooldown() {
 
 // ── Status bar ──────────────────────────────────────────────
 function updateStatusBar() { const speed = parseInt($("speed-input").value, 10) || selectedSpeed; if ($("status-speed-text")) $("status-speed-text").textContent = speed + " km/h"; }
+
+// ── Stealth / Anti-detection ───────────────────────────────
+let _stealthDismissed = false;
+
+async function checkStealth() {
+    if (_stealthDismissed) return;
+    try {
+        const r = await fetch("/api/stealth/check");
+        const d = await r.json();
+        const banner = $("stealth-banner");
+        if (!d.warnings || !d.warnings.length) { banner.classList.add("hidden"); return; }
+        // Show highest severity warning
+        const sorted = d.warnings.sort((a, b) => (a.severity === "high" ? -1 : 1));
+        $("stealth-banner-text").textContent = sorted[0].message;
+        banner.classList.remove("hidden");
+        banner.className = "stealth-banner-" + sorted[0].severity;
+        // Also check device timezone client-side
+        if (d.spoof_location) {
+            const deviceOffsetH = -new Date().getTimezoneOffset() / 60;
+            const targetOffsetH = Math.round(d.spoof_location.lon / 15);
+            if (Math.abs(deviceOffsetH - targetOffsetH) > 1 && !d.warnings.find(w => w.type === "timezone_mismatch")) {
+                toast("Timezone mismatch: your device is UTC" + (deviceOffsetH >= 0 ? "+" : "") + deviceOffsetH + " but target is ~UTC" + (targetOffsetH >= 0 ? "+" : "") + targetOffsetH, "warning");
+            }
+        }
+    } catch (e) {}
+}
+
+function toggleTips() { $("tips-overlay").classList.toggle("hidden"); }
+function dismissStealthBanner() { $("stealth-banner").classList.add("hidden"); _stealthDismissed = true; }
 
 // ── Profiles ────────────────────────────────────────────────
 async function loadProfiles() {

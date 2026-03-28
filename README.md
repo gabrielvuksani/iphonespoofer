@@ -40,6 +40,10 @@ Your iPhone has a built-in developer feature that lets Xcode simulate GPS locati
 | **Paste coordinates** | Paste lat/lon or Google Maps URLs directly from clipboard |
 | **Undo teleport** | One-click undo to return to your previous location |
 | **Keep-alive** | iOS 18+ location maintained automatically while phone stays connected |
+| **GPS jitter** | Natural 1-5m drift while stationary — prevents fixed-position detection |
+| **Stealth check** | Automatic IP vs GPS mismatch detection with VPN recommendation |
+| **Timezone alert** | Warns when device timezone doesn't match spoofed region |
+| **Anti-detection guide** | In-app guide covering app risk levels, tips, and honest limitations |
 
 ### Organization
 
@@ -164,7 +168,7 @@ build_windows.bat
 
 | Layer | Technology |
 |-------|-----------|
-| Device communication | [pymobiledevice3](https://github.com/doronz88/pymobiledevice3) (pure Python, v4.0+) |
+| Device communication | [pymobiledevice3](https://github.com/doronz88/pymobiledevice3) (pure Python, v9.0+) |
 | Backend | Python 3 + [Flask](https://flask.palletsprojects.com/) (44 API endpoints) |
 | Map | [Leaflet.js](https://leafletjs.com/) + [CartoDB](https://carto.com/basemaps/) tiles (dark + light) |
 | Search | [Photon](https://photon.komoot.io/) + [Nominatim](https://nominatim.org/) (free, no API key) |
@@ -250,6 +254,7 @@ The app detects all connected devices. Click the device badge in the top bar to 
 
 | Version | Highlights |
 |---------|-----------|
+| **v1.5.0** | Anti-detection stealth suite (GPS jitter, IP mismatch alerts, timezone warnings, detection guide), fix pymobiledevice3 v9+ compatibility, Python 3.13 build, connect button fix |
 | **v1.4.0** | Neon cyberpunk UI, floating HUD panels, 12 new features (route history, undo, live tracking, keyboard shortcuts, multi-device picker, inline forms, coordinate HUD, search navigation, animated routes) |
 | **v1.3.0** | Fix connection flow, WiFi/USB connect from UI, Python 3.13 support |
 | **v1.2.0** | WiFi mode, persistence tips |

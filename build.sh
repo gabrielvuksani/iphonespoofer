@@ -6,7 +6,7 @@ cd "$SCRIPT_DIR"
 
 APP_NAME="iPhone Spoofer"
 BUNDLE_ID="com.iphonespoofer.app"
-VERSION="1.4.0"
+VERSION="1.5.0"
 VENV_DIR="$SCRIPT_DIR/.venv"
 DIST_DIR="$SCRIPT_DIR/dist"
 APP_DIR="$DIST_DIR/$APP_NAME.app"
@@ -17,12 +17,37 @@ echo "  Building $APP_NAME v$VERSION"
 echo "=================================================="
 echo ""
 
-# ── 1. Venv ──────────────────────────────────────────────
+# ── 1. Venv (requires Python 3.10+ for pymobiledevice3) ──
+# Find best available Python: prefer 3.13 from Homebrew, then 3.12, 3.11, 3.10
+PYTHON=""
+for p in /opt/homebrew/bin/python3.13 /opt/homebrew/bin/python3.12 /opt/homebrew/bin/python3.11 /opt/homebrew/bin/python3.10 python3.13 python3.12 python3.11 python3.10; do
+    if command -v "$p" &>/dev/null; then
+        PYVER=$("$p" -c "import sys; print(sys.version_info.minor)")
+        if [ "$PYVER" -ge 10 ] 2>/dev/null; then
+            PYTHON="$p"
+            break
+        fi
+    fi
+done
+if [ -z "$PYTHON" ]; then
+    echo "[!] Python 3.10+ is required. Install via: brew install python@3.13"
+    exit 1
+fi
+echo "    Using $($PYTHON --version) at $PYTHON"
+
 if [ ! -d "$VENV_DIR" ]; then
     echo "[1/5] Creating virtual environment..."
-    python3 -m venv "$VENV_DIR"
+    "$PYTHON" -m venv "$VENV_DIR"
 else
-    echo "[1/5] Using existing venv"
+    # Verify existing venv is 3.10+
+    VENV_VER=$("$VENV_DIR/bin/python3" -c "import sys; print(sys.version_info.minor)" 2>/dev/null || echo "0")
+    if [ "$VENV_VER" -lt 10 ] 2>/dev/null; then
+        echo "[1/5] Recreating venv with Python 3.10+..."
+        rm -rf "$VENV_DIR"
+        "$PYTHON" -m venv "$VENV_DIR"
+    else
+        echo "[1/5] Using existing venv"
+    fi
 fi
 
 VPYTHON="$VENV_DIR/bin/python3"

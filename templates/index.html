@@ -118,6 +118,9 @@
         <button id="btn-theme" class="teleport-btn" title="Toggle theme">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
+        <button id="btn-stealth" class="teleport-btn" title="Anti-detection guide">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </button>
         <button id="btn-shortcuts" class="teleport-btn" title="Keyboard shortcuts">?</button>
         <div id="device-badge" style="cursor:pointer" title="Click for device options">
             <span id="device-dot" class="dot"></span>
@@ -125,6 +128,16 @@
             <span id="dev-conn" class="conn-badge" style="margin-left:2px">--</span>
         </div>
     </div>
+</div>
+
+<!-- ═══ Stealth Warning Banner ═══ -->
+<div id="stealth-banner" class="hidden">
+    <div class="stealth-banner-content">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span id="stealth-banner-text">--</span>
+        <button id="stealth-banner-tip" class="stealth-link">How to fix</button>
+    </div>
+    <button id="stealth-banner-close" class="stealth-close">&times;</button>
 </div>
 
 <!-- ═══ HUD: Location Panel (left) ═══ -->
@@ -392,6 +405,50 @@
             <div class="shortcut-row"><kbd>Esc</kbd><span>Close panel / form</span></div>
             <div class="shortcut-row"><kbd>?</kbd><span>Show / hide shortcuts</span></div>
             <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd><span>Zoom in / out</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Anti-Detection Tips Overlay ═══ -->
+<div id="tips-overlay" class="hidden">
+    <div class="tips-card">
+        <div class="tips-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>ANTI-DETECTION GUIDE</span>
+            <button id="btn-tips-close" class="hud-panel-close">&times;</button>
+        </div>
+        <div class="tips-body">
+            <div class="tips-section">
+                <div class="tips-section-title tips-green">YOUR STEALTH FEATURES (active)</div>
+                <div class="tips-item"><span class="tips-check">&#10003;</span> GPS Jitter &mdash; Natural 1-5m drift while stationary</div>
+                <div class="tips-item"><span class="tips-check">&#10003;</span> Cooldown Timer &mdash; Prevents impossible-travel detection</div>
+                <div class="tips-item"><span class="tips-check">&#10003;</span> Speed Randomization &mdash; Natural speed variation on routes</div>
+                <div class="tips-item"><span class="tips-check">&#10003;</span> Real Road Routes &mdash; OSRM routing follows actual streets</div>
+                <div class="tips-item"><span class="tips-check">&#10003;</span> IP Mismatch Alert &mdash; Warns when a VPN is needed</div>
+                <div class="tips-item"><span class="tips-check">&#10003;</span> Timezone Alert &mdash; Warns when device clock doesn't match</div>
+            </div>
+            <div class="tips-section">
+                <div class="tips-section-title tips-amber">WHAT YOU SHOULD DO</div>
+                <div class="tips-item"><span class="tips-num">1</span> Use a <strong>VPN</strong> matching your spoofed region for streaming &amp; banking</div>
+                <div class="tips-item"><span class="tips-num">2</span> Change <strong>timezone</strong>: Settings &rarr; General &rarr; Date &amp; Time &rarr; disable Auto</div>
+                <div class="tips-item"><span class="tips-num">3</span> Move naturally &mdash; use <strong>routes and wander</strong> instead of teleporting</div>
+                <div class="tips-item"><span class="tips-num">4</span> Respect <strong>cooldowns</strong> &mdash; wait for the timer to turn green</div>
+                <div class="tips-item"><span class="tips-num">5</span> Avoid rapid teleporting &mdash; apps flag <strong>impossible travel</strong></div>
+            </div>
+            <div class="tips-section">
+                <div class="tips-section-title">APP RISK LEVELS</div>
+                <div class="tips-item"><span class="tips-dot tips-dot-green"></span> <strong>Safe:</strong> Maps, Weather, Social media, Dating, Delivery</div>
+                <div class="tips-item"><span class="tips-dot tips-dot-amber"></span> <strong>Moderate:</strong> Uber/Lyft, Snapchat, Life360 (use routes)</div>
+                <div class="tips-item"><span class="tips-dot tips-dot-red"></span> <strong>Advanced:</strong> Pokemon Go, Banking apps (use VPN + cooldown)</div>
+            </div>
+            <div class="tips-section">
+                <div class="tips-section-title tips-red">HONEST LIMITATIONS</div>
+                <div class="tips-item"><span class="tips-x">&times;</span> CLLocation metadata (speed/altitude) &mdash; Apple API limitation</div>
+                <div class="tips-item"><span class="tips-x">&times;</span> Motion sensors &mdash; accelerometer shows phone is stationary</div>
+                <div class="tips-item"><span class="tips-x">&times;</span> WiFi/Bluetooth fingerprinting &mdash; used by banking fraud SDKs</div>
+                <div class="tips-item"><span class="tips-x">&times;</span> Cell tower triangulation &mdash; carrier infrastructure</div>
+                <div class="tips-hint">Most consumer apps don't check these. Banking &amp; gaming apps may.</div>
+            </div>
         </div>
     </div>
 </div>

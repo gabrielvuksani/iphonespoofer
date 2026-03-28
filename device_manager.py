@@ -47,7 +47,7 @@ class DeviceManager:
         }
         self._auto_reconnect = False
         self._reconnect_thread = None
-        self._reconnect_callback = None  # Called after successful reconnect
+        self._reconnect_callback = None
         atexit.register(self.shutdown)
 
     # ── Auto-reconnect ─────────────────────────────────────
@@ -72,7 +72,6 @@ class DeviceManager:
         """Periodically check connection and reconnect if needed."""
         while self._auto_reconnect:
             if self.device_info.get("connected"):
-                # Verify connection is still alive
                 if not self._is_connection_alive():
                     print("[!] Device disconnected, attempting auto-reconnect...")
                     self.device_info["connected"] = False
@@ -95,9 +94,7 @@ class DeviceManager:
         if not self.simulator:
             return False
         try:
-            # Attempt a lightweight operation
             self.bridge.run(self.simulator.set(0, 0))
-            # Clear immediately to avoid side effects
             self.bridge.run(self.simulator.clear())
             return True
         except Exception:
